@@ -66,6 +66,21 @@
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">Classes representing events to be replayed. These events can be serialized to</span>
 <span class="sd">events.trace JSON files.</span>
+
+<span class="sd">Note about the JSON events.trace format:</span>
+
+<span class="sd">All events are serialized to JSON with the Event.to_json() method.</span>
+
+<span class="sd">All events have a fingerprint field, which is used to compute functional</span>
+<span class="sd">equivalence between events across different replays of the trace.</span>
+
+<span class="sd">The default format of the fingerprint field is a tuple (event class name,).</span>
+
+<span class="sd">The specific format of the fingerprint field is documented in each class&#39;</span>
+<span class="sd">fingerprint() method.</span>
+
+<span class="sd">The format of other additional fields is documented in</span>
+<span class="sd">each event&#39;s __init__() method.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="kn">from</span> <span class="nn">sts.util.console</span> <span class="kn">import</span> <span class="n">msg</span>
@@ -230,6 +245,16 @@
   <span class="sd">&#39;&#39;&#39; Crashes a switch, by disconnecting its TCP connection with the</span>
 <span class="sd">  controller(s).&#39;&#39;&#39;</span>
 <div class="viewcode-block" id="SwitchFailure.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.SwitchFailure.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - dpid: unique integer identifier of the switch.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SwitchFailure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dpid</span> <span class="o">=</span> <span class="n">dpid</span>
 </div>
@@ -247,6 +272,7 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="SwitchFailure.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.SwitchFailure.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format: (class name, dpid) &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dpid</span><span class="p">,)</span>
 </div></div>
 <div class="viewcode-block" id="SwitchRecovery"><a class="viewcode-back" href="../../sts.html#sts.replay_event.SwitchRecovery">[docs]</a><span class="k">class</span> <span class="nc">SwitchRecovery</span><span class="p">(</span><span class="n">InputEvent</span><span class="p">):</span>
@@ -255,6 +281,7 @@
 <div class="viewcode-block" id="SwitchRecovery.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.SwitchRecovery.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Parameters:</span>
+<span class="sd">     - dpid: unique integer identifier of the switch.</span>
 <span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
 <span class="sd">       and input event labels begin with &#39;e&#39;.</span>
 <span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
@@ -287,6 +314,7 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="SwitchRecovery.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.SwitchRecovery.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format: (class name, dpid) &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dpid</span><span class="p">,)</span>
 </div></div>
 <div class="viewcode-block" id="get_link"><a class="viewcode-back" href="../../sts.html#sts.replay_event.get_link">[docs]</a><span class="k">def</span> <span class="nf">get_link</span><span class="p">(</span><span class="n">link_event</span><span class="p">,</span> <span class="n">simulation</span><span class="p">):</span>
@@ -302,6 +330,19 @@
 <span class="sd">  this link will be dropped until a LinkRecovery occurs.&#39;&#39;&#39;</span>
 <div class="viewcode-block" id="LinkFailure.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.LinkFailure.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_dpid</span><span class="p">,</span> <span class="n">start_port_no</span><span class="p">,</span> <span class="n">end_dpid</span><span class="p">,</span> <span class="n">end_port_no</span><span class="p">,</span>
                <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - start_dpid: unique integer identifier of the first switch connected to the link.</span>
+<span class="sd">     - start_port_no: integer port number of the start switch&#39;s port.</span>
+<span class="sd">     - end_dpid: unique integer identifier of the second switch connected to the link.</span>
+<span class="sd">     - end_port_no: integer port number of the end switch&#39;s port to be created.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">LinkFailure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">start_dpid</span> <span class="o">=</span> <span class="n">start_dpid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">start_port_no</span> <span class="o">=</span> <span class="n">start_port_no</span>
@@ -327,6 +368,8 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="LinkFailure.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.LinkFailure.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format:</span>
+<span class="sd">    (class name, start dpid, start port_no, end dpid, end port_no) &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">start_dpid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_port_no</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">end_dpid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_port_no</span><span class="p">)</span>
@@ -336,6 +379,19 @@
 <span class="sd">  ofp_port_status message to its parent(s). &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="LinkRecovery.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.LinkRecovery.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_dpid</span><span class="p">,</span> <span class="n">start_port_no</span><span class="p">,</span> <span class="n">end_dpid</span><span class="p">,</span> <span class="n">end_port_no</span><span class="p">,</span>
                <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - start_dpid: unique integer identifier of the first switch connected to the link.</span>
+<span class="sd">     - start_port_no: integer port number of the start switch&#39;s port.</span>
+<span class="sd">     - end_dpid: unique integer identifier of the second switch connected to the link.</span>
+<span class="sd">     - end_port_no: integer port number of the end switch&#39;s port to be created.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">LinkRecovery</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">start_dpid</span> <span class="o">=</span> <span class="n">start_dpid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">start_port_no</span> <span class="o">=</span> <span class="n">start_port_no</span>
@@ -361,6 +417,9 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="LinkRecovery.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.LinkRecovery.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format:</span>
+<span class="sd">    (class name, start dpid, start port, end dpid, end port)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">start_dpid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_port_no</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">end_dpid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_port_no</span><span class="p">)</span>
@@ -368,6 +427,16 @@
 <div class="viewcode-block" id="ControllerFailure"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControllerFailure">[docs]</a><span class="k">class</span> <span class="nc">ControllerFailure</span><span class="p">(</span><span class="n">InputEvent</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39; Kills a controller process with `kill -9`&#39;&#39;&#39;</span>
 <div class="viewcode-block" id="ControllerFailure.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControllerFailure.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">controller_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - controller_id: unique string label for the controller to be killed.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ControllerFailure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span> <span class="o">=</span> <span class="n">controller_id</span>
 </div>
@@ -385,12 +454,23 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="ControllerFailure.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControllerFailure.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format: (class name, controller id) &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="ControllerRecovery"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControllerRecovery">[docs]</a><span class="k">class</span> <span class="nc">ControllerRecovery</span><span class="p">(</span><span class="n">InputEvent</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39; Reboots a crashed controller by reinvoking its original command line</span>
 <span class="sd">  parameters&#39;&#39;&#39;</span>
 <div class="viewcode-block" id="ControllerRecovery.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControllerRecovery.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">controller_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - controller_id: unique string label for the controller.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ControllerRecovery</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span> <span class="o">=</span> <span class="n">controller_id</span>
 </div>
@@ -408,6 +488,7 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="ControllerRecovery.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControllerRecovery.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format: (class name, controller id) &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="HostMigration"><a class="viewcode-back" href="../../sts.html#sts.replay_event.HostMigration">[docs]</a><span class="k">class</span> <span class="nc">HostMigration</span><span class="p">(</span><span class="n">InputEvent</span><span class="p">):</span>
@@ -416,6 +497,24 @@
 <span class="sd">  &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="HostMigration.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.HostMigration.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_ingress_dpid</span><span class="p">,</span> <span class="n">old_ingress_port_no</span><span class="p">,</span>
                <span class="n">new_ingress_dpid</span><span class="p">,</span> <span class="n">new_ingress_port_no</span><span class="p">,</span> <span class="n">host_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - old_ingress_dpid: unique integer identifier of the ingress switch the host is</span>
+<span class="sd">       moving away from.</span>
+<span class="sd">     - old_ingress_port_no: integer identifier of the port the host is moving</span>
+<span class="sd">       away from.</span>
+<span class="sd">     - new_ingress_dpid: unique integer identifier of the ingress switch the host is</span>
+<span class="sd">       moving to.</span>
+<span class="sd">     - new_ingress_port_no: integer identifier of the port the host is moving</span>
+<span class="sd">       to.</span>
+<span class="sd">     - host_id: unique integer identifier of the host.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">HostMigration</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">old_ingress_dpid</span> <span class="o">=</span> <span class="n">old_ingress_dpid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">old_ingress_port_no</span> <span class="o">=</span> <span class="n">old_ingress_port_no</span>
@@ -454,6 +553,8 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="HostMigration.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.HostMigration.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format:</span>
+<span class="sd">    (class name, old dpid, old port, new dpid, new port, host id) &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">old_ingress_dpid</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">old_ingress_port_no</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_ingress_dpid</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">new_ingress_port_no</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_id</span><span class="p">)</span>
@@ -477,10 +578,26 @@
 </div></div>
 <div class="viewcode-block" id="TrafficInjection"><a class="viewcode-back" href="../../sts.html#sts.replay_event.TrafficInjection">[docs]</a><span class="k">class</span> <span class="nc">TrafficInjection</span><span class="p">(</span><span class="n">InputEvent</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39; Injects a dataplane packet into the network at the given host&#39;s access link &#39;&#39;&#39;</span>
-<div class="viewcode-block" id="TrafficInjection.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.TrafficInjection.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dp_event</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">prunable</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="TrafficInjection.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.TrafficInjection.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dp_event</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">host_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">prunable</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - dp_event: DataplaneEvent object encapsulating the packet contents and the</span>
+<span class="sd">       access link.</span>
+<span class="sd">     - host_id: unique integer label identifying the host that generated the</span>
+<span class="sd">       packet.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">     - prunable: whether this input event can be pruned during delta</span>
+<span class="sd">       debugging.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">TrafficInjection</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
                                            <span class="n">prunable</span><span class="o">=</span><span class="n">prunable</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dp_event</span> <span class="o">=</span> <span class="n">dp_event</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">host_id</span> <span class="o">=</span> <span class="n">host_id</span>
 </div>
 <div class="viewcode-block" id="TrafficInjection.proceed"><a class="viewcode-back" href="../../sts.html#sts.replay_event.TrafficInjection.proceed">[docs]</a>  <span class="k">def</span> <span class="nf">proceed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation</span><span class="p">):</span>
     <span class="c"># If dp_event is None, backwards compatibility</span>
@@ -496,7 +613,12 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="TrafficInjection.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.TrafficInjection.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_event</span><span class="p">)</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format: (class name, dp event, host_id)</span>
+<span class="sd">    The format of dp event is:</span>
+<span class="sd">    {&quot;interface&quot;: HostInterface.to_json(), &quot;packet&quot;: base 64 encoded packet contents}</span>
+<span class="sd">    See entities.py for the HostInterface json format.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_id</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TrafficInjection.to_json"><a class="viewcode-back" href="../../sts.html#sts.replay_event.TrafficInjection.to_json">[docs]</a>  <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">{}</span>
@@ -515,13 +637,25 @@
     <span class="n">dp_event</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">if</span> <span class="s">&#39;dp_event&#39;</span> <span class="ow">in</span> <span class="n">json_hash</span><span class="p">:</span>
       <span class="n">dp_event</span> <span class="o">=</span> <span class="n">DataplaneEvent</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json_hash</span><span class="p">[</span><span class="s">&#39;dp_event&#39;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">TrafficInjection</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">dp_event</span><span class="o">=</span><span class="n">dp_event</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">prunable</span><span class="o">=</span><span class="n">prunable</span><span class="p">)</span>
+    <span class="n">host_id</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="s">&#39;host_id&#39;</span> <span class="ow">in</span> <span class="n">json_hash</span><span class="p">:</span>
+      <span class="n">host_id</span> <span class="o">=</span> <span class="n">json_hash</span><span class="p">[</span><span class="s">&#39;host_id&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">TrafficInjection</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">dp_event</span><span class="o">=</span><span class="n">dp_event</span><span class="p">,</span> <span class="n">host_id</span><span class="o">=</span><span class="n">host_id</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">prunable</span><span class="o">=</span><span class="n">prunable</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="WaitTime"><a class="viewcode-back" href="../../sts.html#sts.replay_event.WaitTime">[docs]</a><span class="k">class</span> <span class="nc">WaitTime</span><span class="p">(</span><span class="n">InputEvent</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39; Causes the simulation to sleep for the specified number of seconds.</span>
 <span class="sd">  Controller processes continue running during this time.&#39;&#39;&#39;</span>
 <div class="viewcode-block" id="WaitTime.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.WaitTime.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait_time</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39; wait_time is specified in seconds &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - wait_time: float representing how long to sleep in seconds.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">WaitTime</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">=</span> <span class="n">wait_time</span>
 </div>
@@ -542,6 +676,18 @@
 <span class="sd">  proceeding. &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="CheckInvariants.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.CheckInvariants.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">invariant_check_name</span><span class="o">=</span><span class="s">&quot;InvariantChecker.check_correspondence&quot;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">     - invariant_check_name: unique name of the invariant to be checked. See</span>
+<span class="sd">       config.invariant_checks for an exhaustive list of possible invariant</span>
+<span class="sd">       checks.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">CheckInvariants</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="c"># For backwards compatibility.. (invariants used to be specified as</span>
     <span class="c"># marshalled functions, not invariant check names)</span>
@@ -609,6 +755,17 @@
 <span class="sd">  messages will be sent over the connection until a ControlChannelUnblock</span>
 <span class="sd">  occurs. &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="ControlChannelBlock.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControlChannelBlock.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">controller_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - dpid: unique integer identifier of the switch.</span>
+<span class="sd">     - controller_id: unique string label for the controller.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ControlChannelBlock</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dpid</span> <span class="o">=</span> <span class="n">dpid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span> <span class="o">=</span> <span class="n">controller_id</span>
@@ -623,6 +780,8 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="ControlChannelBlock.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControlChannelBlock.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format: (class name, dpid, controller id)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dpid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span><span class="p">)</span>
 </div>
@@ -638,6 +797,17 @@
   <span class="sd">&#39;&#39;&#39; Unblocks the control channel delay triggered by a ControlChannelUnblock.</span>
 <span class="sd">  All queued messages will be sent.&#39;&#39;&#39;</span>
 <div class="viewcode-block" id="ControlChannelUnblock.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControlChannelUnblock.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">controller_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - dpid: unique integer identifier of the switch.</span>
+<span class="sd">     - controller_id: unique string label for the controller.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ControlChannelUnblock</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dpid</span> <span class="o">=</span> <span class="n">dpid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span> <span class="o">=</span> <span class="n">controller_id</span>
@@ -652,6 +822,7 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="ControlChannelUnblock.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControlChannelUnblock.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format: (class name, dpid, controller id) &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dpid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span><span class="p">)</span>
 </div>
@@ -668,8 +839,18 @@
 <span class="sd">  the network. &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="DataplaneDrop.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.DataplaneDrop.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fingerprint</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">passive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39; - passive: whether we&#39;re using Replayer.DataplaneChecker &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">     - passive: whether we&#39;re using Replayer.DataplaneChecker</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">DataplaneDrop</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+    <span class="c"># N.B. fingerprint is monkeypatched on to DpPacketOut events by BufferedPatchPanel</span>
     <span class="k">if</span> <span class="n">fingerprint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">:</span>
       <span class="n">fingerprint</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fingerprint</span><span class="p">)</span>
       <span class="n">fingerprint</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
@@ -693,6 +874,10 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="DataplaneDrop.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.DataplaneDrop.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format:</span>
+<span class="sd">    (class name, DPFingerprint, switch dpid, port no)</span>
+<span class="sd">    See fingerprints/messages.py for format of DPFingerprint.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fingerprint</span>
 </div>
   <span class="nd">@staticmethod</span>
@@ -760,6 +945,19 @@
 <span class="sd">  send an openflow packet.</span>
 <span class="sd">  &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="ControlMessageBase.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControlMessageBase.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">controller_id</span><span class="p">,</span> <span class="n">fingerprint</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">timeout_disallowed</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - dpid: unique integer identifier of the switch.</span>
+<span class="sd">     - controller_id: unique string label for the controller.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">     - timeout_disallowed: whether the replayer should wait indefinitely for</span>
+<span class="sd">       this event to occur. Defaults to False.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="c"># If constructed directly (not from json), fingerprint is the</span>
     <span class="c"># OFFingerprint, not including dpid and controller_id</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ControlMessageBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">timeout_disallowed</span><span class="o">=</span><span class="n">timeout_disallowed</span><span class="p">)</span>
@@ -776,6 +974,10 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="ControlMessageBase.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControlMessageBase.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format:</span>
+<span class="sd">    (class name, OFFingerprint, dpid, controller id)</span>
+<span class="sd">    See fingerprints/messages.py for OFFingerprint format.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fingerprint</span>
 </div></div>
 <div class="viewcode-block" id="ControlMessageReceive"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControlMessageReceive">[docs]</a><span class="k">class</span> <span class="nc">ControlMessageReceive</span><span class="p">(</span><span class="n">ControlMessageBase</span><span class="p">):</span>
@@ -880,6 +1082,20 @@
 <span class="sd">  via syncproto.</span>
 <span class="sd">  &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="ControllerStateChange.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControllerStateChange.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">controller_id</span><span class="p">,</span> <span class="n">fingerprint</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">timeout_disallowed</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - controller_id: unique string label for the controller.</span>
+<span class="sd">     - name: The format string passed to the controller&#39;s logging library.</span>
+<span class="sd">     - value: An array of values for the format string.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">     - timeout_disallowed: whether the replayer should wait indefinitely for</span>
+<span class="sd">       this event to occur. Defaults to False.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ControllerStateChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">timeout_disallowed</span><span class="o">=</span><span class="n">timeout_disallowed</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span> <span class="o">=</span> <span class="n">controller_id</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">fingerprint</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">fingerprint</span><span class="p">)</span> <span class="o">==</span> <span class="nb">unicode</span><span class="p">:</span>
@@ -912,6 +1128,11 @@
 
   <span class="nd">@property</span>
 <div class="viewcode-block" id="ControllerStateChange.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.ControllerStateChange.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format:</span>
+<span class="sd">    (class name, PendingStateChange.fingerprint, controller id)</span>
+<span class="sd">    PendingStateChange.fingerprint is the format string passed to the</span>
+<span class="sd">    controller&#39;s logging library (without interpolated values)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="c"># Somewhat confusing: the StateChange&#39;s fingerprint is self._fingerprint,</span>
     <span class="c"># but the overall fingerprint of this event needs to include the controller</span>
     <span class="c"># id</span>
@@ -942,6 +1163,20 @@
 <span class="sd">  gettimeofday()</span>
 <span class="sd">  &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="DeterministicValue.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.DeterministicValue.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">controller_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">timeout_disallowed</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - controller_id: unique string label for the controller.</span>
+<span class="sd">     - name: name of the DeterministicValue request, e.g. &quot;gettimeofday&quot;</span>
+<span class="sd">     - value: the return value of the DeterministicValue request.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">     - timeout_disallowed: whether the replayer should wait indefinitely for</span>
+<span class="sd">       this event to occur. Defaults to False.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">DeterministicValue</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">timeout_disallowed</span><span class="o">=</span><span class="n">timeout_disallowed</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">controller_id</span> <span class="o">=</span> <span class="n">controller_id</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -993,7 +1228,18 @@
 <span class="sd">  &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="DataplanePermit.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.DataplanePermit.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fingerprint</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">passive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39; - passive: whether we&#39;re using Replayer.DataplaneChecker &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">     - passive: whether we&#39;re using Replayer.DataplaneChecker</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># N.B. fingerprint is monkeypatched onto DpPacketOut events by</span>
+    <span class="c"># BufferedPatchPanel</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">DataplanePermit</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="p">)</span>
     <span class="k">if</span> <span class="n">fingerprint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">:</span>
       <span class="n">fingerprint</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fingerprint</span><span class="p">)</span>
@@ -1017,6 +1263,10 @@
 </div>
   <span class="nd">@property</span>
 <div class="viewcode-block" id="DataplanePermit.fingerprint"><a class="viewcode-back" href="../../sts.html#sts.replay_event.DataplanePermit.fingerprint">[docs]</a>  <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Fingerprint tuple format:</span>
+<span class="sd">    (class name, DPFingerprint, switch dpid, port no)</span>
+<span class="sd">    See fingerprints/messages.py for format of DPFingerprint.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fingerprint</span>
 </div>
   <span class="nd">@staticmethod</span>
@@ -1047,6 +1297,18 @@
 <div class="viewcode-block" id="InvariantViolation"><a class="viewcode-back" href="../../sts.html#sts.replay_event.InvariantViolation">[docs]</a><span class="k">class</span> <span class="nc">InvariantViolation</span><span class="p">(</span><span class="n">SpecialEvent</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39; Class for logging violations as json dicts &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="InvariantViolation.__init__"><a class="viewcode-back" href="../../sts.html#sts.replay_event.InvariantViolation.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">violations</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">round</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">     - violations: an array of strings specifying the invariant violation</span>
+<span class="sd">       fingerprints. Format of the strings depends on the invariant check.</span>
+<span class="sd">       Empty array means there were no violations.</span>
+<span class="sd">     - label: a unique label for this event. Internal event labels begin with &#39;i&#39;</span>
+<span class="sd">       and input event labels begin with &#39;e&#39;.</span>
+<span class="sd">     - time: the timestamp of when this event occured. Stored as a tuple:</span>
+<span class="sd">       [seconds since unix epoch, microseconds].</span>
+<span class="sd">     - round: optional integer. Indicates what simulation round this event occured</span>
+<span class="sd">       in.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">Event</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">violations</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">violations</span> <span class="p">]</span>
 </div>

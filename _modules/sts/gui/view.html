@@ -1,0 +1,659 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sts.gui.view &mdash; STS 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="STS 0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">STS 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for sts.gui.view</h1><div class="highlight"><pre>
+<span class="c"># Copyright 2011-2013 Colin Scott</span>
+<span class="c"># Copyright 2012-2013 Andrew Or</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at:</span>
+<span class="c">#</span>
+<span class="c">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Graphical representation of STS topology switch, host and link entities</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">sts.entities</span> <span class="kn">import</span> <span class="n">Host</span> <span class="k">as</span> <span class="n">STSHost</span><span class="p">,</span> <span class="n">HostInterface</span> <span class="k">as</span> <span class="n">STSHostInterface</span><span class="p">,</span> \
+                         <span class="n">FuzzSoftwareSwitch</span> <span class="k">as</span> <span class="n">STSSwitch</span><span class="p">,</span> <span class="n">AccessLink</span> <span class="k">as</span> <span class="n">STSAccessLink</span><span class="p">,</span> \
+                         <span class="n">Link</span> <span class="k">as</span> <span class="n">STSNetworkLink</span>
+<span class="kn">from</span> <span class="nn">sts.gui.entities</span> <span class="kn">import</span> <span class="n">GuiNode</span><span class="p">,</span> <span class="n">GuiHost</span><span class="p">,</span> <span class="n">GuiSwitch</span><span class="p">,</span> <span class="n">GuiLink</span>
+<span class="kn">from</span> <span class="nn">pox.lib.addresses</span> <span class="kn">import</span> <span class="n">IPAddr</span><span class="p">,</span> <span class="n">EthAddr</span>
+<span class="kn">from</span> <span class="nn">pox.openflow.libopenflow_01</span> <span class="kn">import</span> <span class="n">ofp_phy_port</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&quot;sts.gui&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TopologyView"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.TopologyView">[docs]</a><span class="k">class</span> <span class="nc">TopologyView</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsView</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  QGraphicsView that provides a graphical representation of STS topology</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="TopologyView.__init__"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.TopologyView.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sts_topology</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sync_period</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">debugging</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsScene</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">setItemIndexMethod</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsScene</span><span class="o">.</span><span class="n">NoIndex</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">setSceneRect</span><span class="p">(</span><span class="o">-</span><span class="mi">300</span><span class="p">,</span> <span class="o">-</span><span class="mi">300</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setRenderHint</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPainter</span><span class="o">.</span><span class="n">Antialiasing</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s">&quot;background: black&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+    <span class="c"># Node boundaries</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">minX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxX</span> <span class="o">=</span> <span class="o">-</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">minY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxY</span> <span class="o">=</span> <span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span>
+
+    <span class="c"># Cursor</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setDragMode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ScrollHandDrag</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ArrowCursor</span><span class="p">)</span>
+
+    <span class="c"># Syncer updates topology scene to contain entities matching those in STS</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">syncer</span> <span class="o">=</span> <span class="n">STSSyncer</span><span class="p">(</span><span class="n">sts_topology</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sync_period</span><span class="p">,</span> <span class="n">debugging</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TopologyView.mouseReleaseEvent"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.TopologyView.mouseReleaseEvent">[docs]</a>  <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Show context menu when right-clicking on empty space on the scene. &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">()):</span>
+      <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RightButton</span><span class="p">:</span>
+        <span class="n">popup</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMenu</span><span class="p">()</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Turn </span><span class="si">%s</span><span class="s"> Debug Messages&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;Off&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">debugging</span> <span class="k">else</span> <span class="s">&quot;On&quot;</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">toggle_debug_messages</span><span class="p">)</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Load State&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">load_state</span><span class="p">)</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Save State&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">save_state</span><span class="p">)</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Create Switch&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">create_switch</span><span class="p">)</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">globalPos</span><span class="p">())</span>
+    <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="STSSyncer"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer">[docs]</a><span class="k">class</span> <span class="nc">STSSyncer</span><span class="p">:</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Container of Node and Link objects in GUI that periodically syncs with STS Topology</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="STSSyncer.__init__"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sts_topology</span><span class="p">,</span> <span class="n">topology_view</span><span class="p">,</span> <span class="n">sync_period</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">debugging</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span> <span class="o">=</span> <span class="n">sts_topology</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span> <span class="o">=</span> <span class="n">topology_view</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span> <span class="o">=</span> <span class="n">topology_view</span><span class="o">.</span><span class="n">topology_scene</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">debugging</span> <span class="o">=</span> <span class="n">debugging</span>
+
+    <span class="c"># Sync with STS topology</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span> <span class="o">=</span> <span class="n">sts_topology</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sync_period</span> <span class="o">=</span> <span class="n">sync_period</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">mismatch_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sync_with_sts</span><span class="p">()</span>
+</div>
+  <span class="nd">@property</span>
+<div class="viewcode-block" id="STSSyncer.switches"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.switches">[docs]</a>  <span class="k">def</span> <span class="nf">switches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+</div>
+  <span class="nd">@property</span>
+<div class="viewcode-block" id="STSSyncer.hosts"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.hosts">[docs]</a>  <span class="k">def</span> <span class="nf">hosts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+</div>
+  <span class="nd">@property</span>
+<div class="viewcode-block" id="STSSyncer.dpids"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.dpids">[docs]</a>  <span class="k">def</span> <span class="nf">dpids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</div>
+  <span class="nd">@property</span>
+<div class="viewcode-block" id="STSSyncer.hids"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.hids">[docs]</a>  <span class="k">def</span> <span class="nf">hids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</div>
+  <span class="nd">@property</span>
+<div class="viewcode-block" id="STSSyncer.links"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.links">[docs]</a>  <span class="k">def</span> <span class="nf">links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.debug"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.debug">[docs]</a>  <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debugging</span><span class="p">:</span>
+      <span class="k">print</span> <span class="s">&quot;sts.gui:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">msg</span>
+      <span class="c">#TODO: Change back to log.debug(msg)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.toggle_debug_messages"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.toggle_debug_messages">[docs]</a>  <span class="k">def</span> <span class="nf">toggle_debug_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">debugging</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">debugging</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.synced_with_sts"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.synced_with_sts">[docs]</a>  <span class="k">def</span> <span class="nf">synced_with_sts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Return True if GUI and STS share the same map of nodes and links &#39;&#39;&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">================== GUI Sync Check ==================&quot;</span> <span class="o">+</span>
+               <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">Switches: </span><span class="se">\t</span><span class="s">STS = </span><span class="si">%s</span><span class="s">, Gui = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">switches</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switches</span><span class="p">))</span> <span class="o">+</span>
+               <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">Hosts:    </span><span class="se">\t</span><span class="s">STS = </span><span class="si">%s</span><span class="s">, Gui = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hosts</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">))</span> <span class="o">+</span>
+               <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">Access Link: </span><span class="se">\t</span><span class="s">STS = </span><span class="si">%s</span><span class="s">, Gui = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">access_links</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">access_links</span><span class="p">))</span> <span class="o">+</span>
+               <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">Network Link: </span><span class="se">\t</span><span class="s">STS = </span><span class="si">%s</span><span class="s">, Gui = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">network_links</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_links</span><span class="p">))</span> <span class="o">+</span>
+               <span class="s">&quot;</span><span class="se">\n</span><span class="s">====================================================</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switches</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">switches</span><span class="p">)</span> <span class="ow">or</span>\
+       <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hosts</span><span class="p">)</span> <span class="ow">or</span>\
+       <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">access_links</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">access_links</span><span class="p">)</span> <span class="ow">or</span>\
+       <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_links</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">network_links</span><span class="p">):</span>
+      <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hid2host</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="k">if</span> <span class="n">hid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="k">if</span> <span class="n">dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hids</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">hid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hid2host</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.sync_with_sts"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.sync_with_sts">[docs]</a>  <span class="k">def</span> <span class="nf">sync_with_sts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Resync all network elements if STS and GUI are persistently desynchronized &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">synced_with_sts</span><span class="p">():</span>
+      <span class="n">Timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_period</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_with_sts</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">mismatch_count</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">return</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">mismatch_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c"># If inconsistency between STS and GUI is persistent, resync</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mismatch_count</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">mismatch_count</span> <span class="o">=</span> <span class="mi">0</span>
+      
+      <span class="c"># Remove all links in GUI</span>
+      <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">:</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">dest</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span> <span class="o">=</span> <span class="p">[]</span>
+
+      <span class="c"># Remove switches found in GUI but not STS</span>
+      <span class="k">for</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">switch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+          <span class="k">if</span> <span class="n">switch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">switch</span><span class="p">)</span>
+          <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">]</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;--- Removing switch with dpid = </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">dpid</span><span class="p">)</span>
+
+      <span class="c"># Remove hosts found in GUI but not STS</span>
+      <span class="k">for</span> <span class="n">hid</span><span class="p">,</span> <span class="n">host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">hid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hid2host</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+          <span class="k">if</span> <span class="n">host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+          <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="p">[</span><span class="n">hid</span><span class="p">]</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;--- Removing host with hid = </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">hid</span><span class="p">)</span>
+
+      <span class="c"># Add switches found in STS but not in GUI</span>
+      <span class="k">for</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="n">dpid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;--- Adding new switch with dpid = </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">dpid</span><span class="p">)</span>
+
+      <span class="c"># Add hosts found in STS but not in GUI</span>
+      <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hid2host</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;--- Adding new host with dpid = </span><span class="si">%d</span><span class="s">!&quot;</span> <span class="o">%</span> <span class="n">hid</span><span class="p">)</span>
+
+      <span class="c"># Reconnect all access links</span>
+      <span class="k">for</span> <span class="n">access_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">access_links</span><span class="p">:</span>
+        <span class="n">sts_host</span> <span class="o">=</span> <span class="n">access_link</span><span class="o">.</span><span class="n">host</span>
+        <span class="n">sts_switch</span> <span class="o">=</span> <span class="n">access_link</span><span class="o">.</span><span class="n">switch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_access_link</span><span class="p">(</span><span class="n">sts_host</span><span class="o">.</span><span class="n">hid</span><span class="p">,</span> <span class="n">sts_switch</span><span class="o">.</span><span class="n">dpid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;--- Adding new access link connecting Host </span><span class="si">%d</span><span class="s"> &lt;--&gt; Switch </span><span class="si">%d</span><span class="s">!&quot;</span>
+                   <span class="o">%</span> <span class="p">(</span><span class="n">sts_host</span><span class="o">.</span><span class="n">hid</span><span class="p">,</span> <span class="n">sts_switch</span><span class="o">.</span><span class="n">dpid</span><span class="p">))</span>
+
+      <span class="c"># Reconnect all network links</span>
+      <span class="k">for</span> <span class="n">network_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">network_links</span><span class="p">:</span>
+        <span class="n">sts_from_switch</span> <span class="o">=</span> <span class="n">network_link</span><span class="o">.</span><span class="n">start_software_switch</span>
+        <span class="n">sts_to_switch</span> <span class="o">=</span> <span class="n">network_link</span><span class="o">.</span><span class="n">end_software_switch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_network_link</span><span class="p">(</span><span class="n">sts_from_switch</span><span class="o">.</span><span class="n">dpid</span><span class="p">,</span> <span class="n">sts_to_switch</span><span class="o">.</span><span class="n">dpid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;--- Adding new network link connecting Switch </span><span class="si">%d</span><span class="s"> --&gt; Switch </span><span class="si">%d</span><span class="s">!&quot;</span>
+                   <span class="o">%</span> <span class="p">(</span><span class="n">sts_from_switch</span><span class="o">.</span><span class="n">dpid</span><span class="p">,</span> <span class="n">sts_to_switch</span><span class="o">.</span><span class="n">dpid</span><span class="p">))</span>
+    <span class="n">Timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_period</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_with_sts</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.reset"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.reset">[docs]</a>  <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Reset GUI topology &#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">switches</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span> <span class="o">=</span> <span class="p">[]</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.add_host"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.add_host">[docs]</a>  <span class="k">def</span> <span class="nf">add_host</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hid</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Add and register a host in GUI with the given hid and position &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">hid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">hid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hids</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="n">GuiHost</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="p">,</span> <span class="n">hid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="p">[</span><span class="n">hid</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">position</span> <span class="o">=</span> <span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">minX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">maxX</span><span class="p">),</span>
+                  <span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">minY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">maxY</span><span class="p">))</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.add_switch"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.add_switch">[docs]</a>  <span class="k">def</span> <span class="nf">add_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Add and register a switch in GUI with the given dpid and position &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+      <span class="k">return</span>    
+    <span class="n">switch</span> <span class="o">=</span> <span class="n">GuiSwitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="p">,</span> <span class="n">dpid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">]</span> <span class="o">=</span> <span class="n">switch</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">switch</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">position</span> <span class="o">=</span> <span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">minX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">maxX</span><span class="p">),</span>
+                  <span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">minY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">maxY</span><span class="p">))</span>
+    <span class="n">switch</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.add_access_link"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.add_access_link">[docs]</a>  <span class="k">def</span> <span class="nf">add_access_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hid</span><span class="p">,</span> <span class="n">dpid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Add and register an access link in GUI &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">hid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span>\
+       <span class="n">dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span>\
+       <span class="n">hid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hids</span> <span class="ow">or</span>\
+       <span class="n">dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="n">GuiLink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="p">[</span><span class="n">hid</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.add_network_link"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.add_network_link">[docs]</a>  <span class="k">def</span> <span class="nf">add_network_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_dpid</span><span class="p">,</span> <span class="n">to_dpid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Add and register a unidirectional network link in GUI &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">from_dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span>\
+       <span class="n">to_dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span>\
+       <span class="n">from_dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span> <span class="ow">or</span>\
+       <span class="n">to_dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="n">GuiLink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">from_dpid</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">to_dpid</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.get_sts_host"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.get_sts_host">[docs]</a>  <span class="k">def</span> <span class="nf">get_sts_host</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gui_host</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a host in GUI, return the corresponding host in STS by hid &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">gui_host</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hid2host</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hid2host</span><span class="p">[</span><span class="n">gui_host</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.get_sts_switch"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.get_sts_switch">[docs]</a>  <span class="k">def</span> <span class="nf">get_sts_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gui_switch</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a switch in GUI, return the corresponding switch in STS by dpid &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">gui_switch</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">gui_switch</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.create_switch"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.create_switch">[docs]</a>  <span class="k">def</span> <span class="nf">create_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Create a switch with the given dpid in both STS and GUI &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">dpid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">dpid</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">num_ports</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">create_switch</span><span class="p">(</span><span class="n">dpid</span><span class="p">,</span> <span class="n">num_ports</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="n">dpid</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.remove_switch"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.remove_switch">[docs]</a>  <span class="k">def</span> <span class="nf">remove_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Remove a switch in both STS and GUI, along with all associated links and any</span>
+<span class="sd">    dangling hosts previously attached</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">gui_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">]</span>
+    <span class="n">sts_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">remove_switch</span><span class="p">(</span><span class="n">sts_switch</span><span class="p">)</span>
+    <span class="c"># Remove associated network links in GUI</span>
+    <span class="n">network_links_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">network_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">network_link</span><span class="o">.</span><span class="n">source</span> <span class="ow">is</span> <span class="n">gui_switch</span> <span class="ow">or</span>\
+         <span class="n">network_link</span><span class="o">.</span><span class="n">dest</span> <span class="ow">is</span> <span class="n">gui_switch</span><span class="p">:</span>
+        <span class="n">network_links_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">network_link</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">network_link</span> <span class="ow">in</span> <span class="n">network_links_to_remove</span><span class="p">:</span>
+      <span class="n">network_link</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">network_link</span><span class="p">)</span>
+      <span class="n">network_link</span><span class="o">.</span><span class="n">dest</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">network_link</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">network_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">network_link</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">network_link</span><span class="p">)</span>
+    <span class="c"># Remove associated access links in GUI</span>
+    <span class="n">access_links_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">access_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">access_link</span><span class="o">.</span><span class="n">dest</span> <span class="ow">is</span> <span class="n">gui_switch</span><span class="p">:</span>
+        <span class="n">access_links_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">access_link</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">access_link</span> <span class="ow">in</span> <span class="n">access_links_to_remove</span><span class="p">:</span>
+      <span class="n">gui_host</span> <span class="o">=</span> <span class="n">access_link</span><span class="o">.</span><span class="n">source</span>
+      <span class="n">gui_host</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">access_link</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">access_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">access_link</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">access_link</span><span class="p">)</span>
+      <span class="c"># Remove dangling hosts in GUI, if any</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gui_host</span><span class="o">.</span><span class="n">linkList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">gui_host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">gui_host</span><span class="p">)</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="p">[</span><span class="n">gui_host</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+    <span class="c"># Remove switch in GUI</span>
+    <span class="k">if</span> <span class="n">gui_switch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">gui_switch</span><span class="p">)</span>
+    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">]</span>
+    </div>
+<div class="viewcode-block" id="STSSyncer.attach_host_to_switch"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.attach_host_to_switch">[docs]</a>  <span class="k">def</span> <span class="nf">attach_host_to_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Create a host and attach it to the switch with the given dpid in both STS and GUI &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">sts_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">]</span>
+    <span class="n">sts_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">create_host</span><span class="p">(</span><span class="n">sts_switch</span><span class="p">,</span> <span class="n">get_switch_port</span><span class="o">=</span>
+             <span class="k">lambda</span> <span class="n">switch</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">link_tracker</span><span class="o">.</span><span class="n">find_unused_port</span><span class="p">(</span><span class="n">switch</span><span class="p">))</span>
+    <span class="n">hid</span> <span class="o">=</span> <span class="n">sts_host</span><span class="o">.</span><span class="n">hid</span>
+    <span class="c"># Situate the new host near the switch</span>
+    <span class="n">gui_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">]</span>
+    <span class="n">host_x</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">gui_switch</span><span class="o">.</span><span class="n">x</span><span class="p">())</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">gui_switch</span><span class="o">.</span><span class="n">x</span><span class="p">())</span><span class="o">+</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">host_y</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">gui_switch</span><span class="o">.</span><span class="n">y</span><span class="p">())</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">gui_switch</span><span class="o">.</span><span class="n">y</span><span class="p">())</span><span class="o">+</span><span class="mi">100</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">host_x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">minX</span><span class="p">:</span>
+      <span class="n">host_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">minX</span>
+    <span class="k">if</span> <span class="n">host_x</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">maxX</span><span class="p">:</span>
+      <span class="n">host_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">maxX</span>
+    <span class="k">if</span> <span class="n">host_y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">minY</span><span class="p">:</span>
+      <span class="n">host_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">minY</span>
+    <span class="k">if</span> <span class="n">host_y</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">maxY</span><span class="p">:</span>
+      <span class="n">host_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="o">.</span><span class="n">maxY</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">hid</span><span class="p">,</span> <span class="p">(</span><span class="n">host_x</span><span class="p">,</span> <span class="n">host_y</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_access_link</span><span class="p">(</span><span class="n">hid</span><span class="p">,</span> <span class="n">dpid</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.remove_host"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.remove_host">[docs]</a>  <span class="k">def</span> <span class="nf">remove_host</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Remove a host and all associated access links in both STS and GUI &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">hid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">hid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hids</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">gui_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="p">[</span><span class="n">hid</span><span class="p">]</span>
+    <span class="n">sts_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">hid2host</span><span class="p">[</span><span class="n">hid</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">remove_host</span><span class="p">(</span><span class="n">sts_host</span><span class="p">)</span>
+    <span class="c"># Remove access links in GUI</span>
+    <span class="k">for</span> <span class="n">access_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">access_link</span><span class="o">.</span><span class="n">source</span> <span class="ow">is</span> <span class="n">gui_host</span><span class="p">:</span>
+        <span class="n">access_link</span><span class="o">.</span><span class="n">dest</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">access_link</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">access_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">access_link</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">access_link</span><span class="p">)</span>
+    <span class="c"># Remove host in GUI</span>
+    <span class="k">if</span> <span class="n">gui_host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">gui_host</span><span class="p">)</span>
+    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid2host</span><span class="p">[</span><span class="n">hid</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.create_network_link"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.create_network_link">[docs]</a>  <span class="k">def</span> <span class="nf">create_network_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_dpid</span><span class="p">,</span> <span class="n">to_dpid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Create a unidirectional network link in both STS and GUI &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">from_dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span>\
+       <span class="n">to_dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span>\
+       <span class="n">from_dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span> <span class="ow">or</span>\
+       <span class="n">to_dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">sts_from_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">from_dpid</span><span class="p">]</span>
+    <span class="n">sts_to_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">to_dpid</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">create_network_link</span><span class="p">(</span><span class="n">sts_from_switch</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">sts_to_switch</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_network_link</span><span class="p">(</span><span class="n">from_dpid</span><span class="p">,</span> <span class="n">to_dpid</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.remove_network_link"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.remove_network_link">[docs]</a>  <span class="k">def</span> <span class="nf">remove_network_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_dpid</span><span class="p">,</span> <span class="n">to_dpid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Remove a unidirectional network link in both STS and GUI &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">from_dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span>\
+       <span class="n">to_dpid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span>\
+       <span class="n">from_dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span> <span class="ow">or</span>\
+       <span class="n">to_dpid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpids</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">sts_from_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">from_dpid</span><span class="p">]</span>
+    <span class="n">sts_to_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">to_dpid</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">remove_network_link</span><span class="p">(</span><span class="n">sts_from_switch</span><span class="p">,</span> <span class="n">sts_to_switch</span><span class="p">)</span>
+    <span class="n">gui_from_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">from_dpid</span><span class="p">]</span>
+    <span class="n">gui_to_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">to_dpid</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">source</span> <span class="ow">is</span> <span class="n">gui_from_switch</span> <span class="ow">and</span> <span class="n">link</span><span class="o">.</span><span class="n">dest</span> <span class="ow">is</span> <span class="n">gui_to_switch</span><span class="p">:</span>
+        <span class="n">gui_from_switch</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="n">gui_to_switch</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_links</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topology_scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="STSSyncer.save_state"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.save_state">[docs]</a>  <span class="k">def</span> <span class="nf">save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Save all JSON serialized entities of both the STS and GUI topologies to a file</span>
+<span class="sd">    Each line is in the format (&lt;entity type&gt;, &lt;serialized form&gt;):</span>
+<span class="sd">      &quot;s&quot; = switch</span>
+<span class="sd">      &quot;h&quot; = host</span>
+<span class="sd">      &quot;l&quot; = network link</span>
+<span class="sd">    Access links need not be saved, because there is a one to one correspondence</span>
+<span class="sd">    between hosts and access links</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">gui_switch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">switches</span><span class="p">:</span>
+      <span class="n">sts_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sts_switch</span><span class="p">(</span><span class="n">gui_switch</span><span class="p">)</span>
+      <span class="n">line</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">((</span><span class="s">&quot;s&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_switch</span><span class="p">(</span><span class="n">gui_switch</span><span class="p">,</span> <span class="n">sts_switch</span><span class="p">)))</span>
+      <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">gui_host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">:</span>
+      <span class="n">sts_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sts_host</span><span class="p">(</span><span class="n">gui_host</span><span class="p">)</span>
+      <span class="n">line</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">((</span><span class="s">&quot;h&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_host</span><span class="p">(</span><span class="n">gui_host</span><span class="p">,</span> <span class="n">sts_host</span><span class="p">)))</span>
+      <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">network_links</span><span class="p">:</span>
+      <span class="n">line</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">((</span><span class="s">&quot;l&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_network_link</span><span class="p">(</span><span class="n">link</span><span class="p">)))</span>
+      <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="n">title</span> <span class="o">=</span> <span class="s">&quot;Specify file to store topology state&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s">&quot;gui/layouts&quot;</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QIODevice</span><span class="o">.</span><span class="n">WriteOnly</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+      <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QByteArray</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.load_state"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.load_state">[docs]</a>  <span class="k">def</span> <span class="nf">load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Load all JSON serialized entities of both the STS and GUI topologies from a file</span>
+<span class="sd">    Each line is in the format (type, serialized_entity):</span>
+<span class="sd">      &quot;s&quot; = switch</span>
+<span class="sd">      &quot;h&quot; = host</span>
+<span class="sd">      &quot;l&quot; = network link</span>
+<span class="sd">    Switches must be loaded first</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s">&quot;Load topology layout from file&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_view</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s">&quot;gui/layouts&quot;</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QIODevice</span><span class="o">.</span><span class="n">ReadOnly</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Error in load_state: Cannot open specified file!&quot;</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readLine</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">isNull</span><span class="p">():</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Error in load_state: Empty file!&quot;</span><span class="p">)</span>
+      <span class="k">return</span>
+
+    <span class="c"># Reset both STS and GUI topology</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="n">type2handler</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s">&quot;s&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize_switch</span><span class="p">,</span>
+      <span class="s">&quot;h&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize_host</span><span class="p">,</span>
+      <span class="s">&quot;l&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize_network_link</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">isNull</span><span class="p">():</span>
+      <span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+      <span class="k">if</span> <span class="nb">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">type2handler</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Error in load_state: Unparseable line detected!&quot;</span><span class="p">)</span>
+      <span class="n">type2handler</span><span class="p">[</span><span class="nb">type</span><span class="p">](</span><span class="n">s</span><span class="p">)</span>
+      <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readLine</span><span class="p">()</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.serialize_host"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.serialize_host">[docs]</a>  <span class="k">def</span> <span class="nf">serialize_host</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gui_host</span><span class="p">,</span> <span class="n">sts_host</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Format Example:</span>
+<span class="sd">      {&quot;ingress_switch_dpids&quot;:[1,3],</span>
+<span class="sd">       &quot;position&quot;:(-60.0,20.0)}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ingress_switch_dpids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">access_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_links</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">access_link</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">gui_host</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+        <span class="n">ingress_switch_dpids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">access_link</span><span class="o">.</span><span class="n">dest</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">ingress_switch_dpids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ingress_switch_dpids</span><span class="p">)</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">gui_host</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">gui_host</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">info</span><span class="p">[</span><span class="s">&quot;ingress_switch_dpids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ingress_switch_dpids</span>
+    <span class="n">info</span><span class="p">[</span><span class="s">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">position</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.serialize_switch"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.serialize_switch">[docs]</a>  <span class="k">def</span> <span class="nf">serialize_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gui_switch</span><span class="p">,</span> <span class="n">sts_switch</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Format Example:</span>
+<span class="sd">      {&quot;dpid&quot;:5,</span>
+<span class="sd">       &quot;numports&quot;:3</span>
+<span class="sd">       &quot;position&quot;:(-10.0,80.0)}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">dpid</span> <span class="o">=</span> <span class="n">sts_switch</span><span class="o">.</span><span class="n">dpid</span>
+    <span class="n">numports</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sts_switch</span><span class="o">.</span><span class="n">ports</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">gui_switch</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">gui_switch</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">info</span><span class="p">[</span><span class="s">&quot;dpid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dpid</span>
+    <span class="n">info</span><span class="p">[</span><span class="s">&quot;numports&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numports</span>
+    <span class="n">info</span><span class="p">[</span><span class="s">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">position</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.serialize_network_link"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.serialize_network_link">[docs]</a>  <span class="k">def</span> <span class="nf">serialize_network_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sts_link</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Format Example:</span>
+<span class="sd">      {&quot;from_switch_dpid&quot;:5,</span>
+<span class="sd">       &quot;to_switch_dpid&quot;:3}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">link_info</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">link_info</span><span class="p">[</span><span class="s">&quot;from_switch_dpid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sts_link</span><span class="o">.</span><span class="n">start_software_switch</span><span class="o">.</span><span class="n">dpid</span>
+    <span class="n">link_info</span><span class="p">[</span><span class="s">&quot;to_switch_dpid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sts_link</span><span class="o">.</span><span class="n">end_software_switch</span><span class="o">.</span><span class="n">dpid</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">link_info</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.deserialize_host"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.deserialize_host">[docs]</a>  <span class="k">def</span> <span class="nf">deserialize_host</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Format Example:</span>
+<span class="sd">      {&quot;ingress_switch_dpids&quot;:[1,3],</span>
+<span class="sd">       &quot;position&quot;:(-60.0,20.0)}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">ingress_switch_dpids</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&quot;ingress_switch_dpids&quot;</span><span class="p">]</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&quot;position&quot;</span><span class="p">]</span>
+    <span class="n">sts_ingress_switches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="n">ingress_switch_dpids</span><span class="p">:</span>
+      <span class="n">sts_ingress_switches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">])</span>
+    <span class="n">sts_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">create_host</span><span class="p">(</span><span class="n">sts_ingress_switches</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">sts_host</span><span class="o">.</span><span class="n">hid</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="n">ingress_switch_dpids</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_access_link</span><span class="p">(</span><span class="n">sts_host</span><span class="o">.</span><span class="n">hid</span><span class="p">,</span> <span class="n">dpid</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.deserialize_switch"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.deserialize_switch">[docs]</a>  <span class="k">def</span> <span class="nf">deserialize_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Format Example:</span>
+<span class="sd">      {&quot;dpid&quot;:5,</span>
+<span class="sd">       &quot;numports&quot;:3</span>
+<span class="sd">       &quot;position&quot;:(-10.0,80.0)}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">dpid</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&quot;dpid&quot;</span><span class="p">]</span>
+    <span class="n">numports</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&quot;numports&quot;</span><span class="p">]</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&quot;position&quot;</span><span class="p">]</span>
+    <span class="n">sts_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">create_switch</span><span class="p">(</span><span class="n">dpid</span><span class="p">,</span> <span class="n">numports</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="n">dpid</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="STSSyncer.deserialize_network_link"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.view.STSSyncer.deserialize_network_link">[docs]</a>  <span class="k">def</span> <span class="nf">deserialize_network_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Format Example:</span>
+<span class="sd">      {&quot;from_switch_dpid&quot;:5,</span>
+<span class="sd">       &quot;to_switch_dpid&quot;:3}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">from_switch_dpid</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&quot;from_switch_dpid&quot;</span><span class="p">]</span>
+    <span class="n">to_switch_dpid</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&quot;to_switch_dpid&quot;</span><span class="p">]</span>
+    <span class="n">sts_from_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">from_switch_dpid</span><span class="p">]</span>
+    <span class="n">sts_to_switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">to_switch_dpid</span><span class="p">]</span>
+    <span class="n">sts_link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sts_topology</span><span class="o">.</span><span class="n">create_network_link</span><span class="p">(</span><span class="n">sts_from_switch</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">sts_to_switch</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_network_link</span><span class="p">(</span><span class="n">from_switch_dpid</span><span class="p">,</span> <span class="n">to_switch_dpid</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">STS 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Colin Scott.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

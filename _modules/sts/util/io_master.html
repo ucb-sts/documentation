@@ -230,6 +230,10 @@
       <span class="c"># TODO(cs): this is a hack: file descriptor is closed upon shut</span>
       <span class="c"># down, and select throws up.</span>
       <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;File Descriptor Closed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+      <span class="c"># Same behavior, error message is:</span>
+      <span class="c"># TypeError: argument must be an int, or have a fileno() method.</span>
+      <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;File Descriptor Closed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_in_select</span> <span class="o">-=</span> <span class="mi">1</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_select</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_close_requested</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>

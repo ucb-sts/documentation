@@ -816,8 +816,42 @@ since pass through mode was set</p>
 <dd></dd></dl>
 
 <dl class="staticmethod">
-<dt id="sts.invariant_checker.InvariantChecker.check_blackholes">
-<em class="property">static </em><tt class="descname">check_blackholes</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.check_blackholes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.check_blackholes" title="Permalink to this definition">¶</a></dt>
+<dt id="sts.invariant_checker.InvariantChecker.check_connectivity">
+<em class="property">static </em><tt class="descname">check_connectivity</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.check_connectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.check_connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return any pairs that couldn&#8217;t reach each other</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="sts.invariant_checker.InvariantChecker.check_correspondence">
+<em class="property">static </em><tt class="descname">check_correspondence</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.check_correspondence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.check_correspondence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return if there were any policy-violations</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="sts.invariant_checker.InvariantChecker.check_liveness">
+<em class="property">static </em><tt class="descname">check_liveness</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.check_liveness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.check_liveness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Very simple: have the controllers crashed?</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="sts.invariant_checker.InvariantChecker.compute_controller_omega">
+<em class="property">static </em><tt class="descname">compute_controller_omega</tt><big>(</big><em>controller_snapshot</em>, <em>live_switches</em>, <em>live_links</em>, <em>edge_links</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.compute_controller_omega"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.compute_controller_omega" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="sts.invariant_checker.InvariantChecker.compute_physical_omega">
+<em class="property">static </em><tt class="descname">compute_physical_omega</tt><big>(</big><em>live_switches</em>, <em>live_links</em>, <em>edge_links</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.compute_physical_omega"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.compute_physical_omega" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="sts.invariant_checker.InvariantChecker.infer_policy_violations">
+<em class="property">static </em><tt class="descname">infer_policy_violations</tt><big>(</big><em>physical_omega</em>, <em>controller_omega</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.infer_policy_violations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.infer_policy_violations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return if there were any missing entries</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="sts.invariant_checker.InvariantChecker.python_check_blackholes">
+<em class="property">static </em><tt class="descname">python_check_blackholes</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.python_check_blackholes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.python_check_blackholes" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Do any switches:</dt>
 <dd><ul class="first last simple">
@@ -839,47 +873,13 @@ connectivity, but not vice versa. No connectivity could also be due to:</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="sts.invariant_checker.InvariantChecker.check_connectivity">
-<em class="property">static </em><tt class="descname">check_connectivity</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.check_connectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.check_connectivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return any pairs that couldn&#8217;t reach each other</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="sts.invariant_checker.InvariantChecker.check_correspondence">
-<em class="property">static </em><tt class="descname">check_correspondence</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.check_correspondence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.check_correspondence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return if there were any policy-violations</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="sts.invariant_checker.InvariantChecker.check_liveness">
-<em class="property">static </em><tt class="descname">check_liveness</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.check_liveness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.check_liveness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Very simple: have the controllers crashed?</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="sts.invariant_checker.InvariantChecker.check_loops">
-<em class="property">static </em><tt class="descname">check_loops</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.check_loops"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.check_loops" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="sts.invariant_checker.InvariantChecker.compute_controller_omega">
-<em class="property">static </em><tt class="descname">compute_controller_omega</tt><big>(</big><em>controller_snapshot</em>, <em>live_switches</em>, <em>live_links</em>, <em>edge_links</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.compute_controller_omega"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.compute_controller_omega" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="sts.invariant_checker.InvariantChecker.compute_physical_omega">
-<em class="property">static </em><tt class="descname">compute_physical_omega</tt><big>(</big><em>live_switches</em>, <em>live_links</em>, <em>edge_links</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.compute_physical_omega"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.compute_physical_omega" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="sts.invariant_checker.InvariantChecker.infer_policy_violations">
-<em class="property">static </em><tt class="descname">infer_policy_violations</tt><big>(</big><em>physical_omega</em>, <em>controller_omega</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.infer_policy_violations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.infer_policy_violations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return if there were any missing entries</p>
-</dd></dl>
-
-<dl class="staticmethod">
 <dt id="sts.invariant_checker.InvariantChecker.python_check_connectivity">
 <em class="property">static </em><tt class="descname">python_check_connectivity</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.python_check_connectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.python_check_connectivity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="sts.invariant_checker.InvariantChecker.python_check_loops">
+<em class="property">static </em><tt class="descname">python_check_loops</tt><big>(</big><em>simulation</em><big>)</big><a class="reference internal" href="_modules/sts/invariant_checker.html#InvariantChecker.python_check_loops"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.invariant_checker.InvariantChecker.python_check_loops" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1828,17 +1828,19 @@ in.</li>
 
 <dl class="class">
 <dt id="sts.replay_event.TrafficInjection">
-<em class="property">class </em><tt class="descclassname">sts.replay_event.</tt><tt class="descname">TrafficInjection</tt><big>(</big><em>label=None</em>, <em>dp_event=None</em>, <em>round=-1</em>, <em>time=None</em>, <em>prunable=True</em><big>)</big><a class="reference internal" href="_modules/sts/replay_event.html#TrafficInjection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.replay_event.TrafficInjection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">sts.replay_event.</tt><tt class="descname">TrafficInjection</tt><big>(</big><em>label=None</em>, <em>dp_event=None</em>, <em>host_id=None</em>, <em>round=-1</em>, <em>time=None</em>, <em>prunable=True</em><big>)</big><a class="reference internal" href="_modules/sts/replay_event.html#TrafficInjection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.replay_event.TrafficInjection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sts.replay_event.InputEvent" title="sts.replay_event.InputEvent"><tt class="xref py py-class docutils literal"><span class="pre">sts.replay_event.InputEvent</span></tt></a></p>
 <p>Injects a dataplane packet into the network at the given host&#8217;s access link</p>
 <dl class="method">
 <dt id="sts.replay_event.TrafficInjection.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>label=None</em>, <em>dp_event=None</em>, <em>round=-1</em>, <em>time=None</em>, <em>prunable=True</em><big>)</big><a class="reference internal" href="_modules/sts/replay_event.html#TrafficInjection.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.replay_event.TrafficInjection.__init__" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">__init__</tt><big>(</big><em>label=None</em>, <em>dp_event=None</em>, <em>host_id=None</em>, <em>round=-1</em>, <em>time=None</em>, <em>prunable=True</em><big>)</big><a class="reference internal" href="_modules/sts/replay_event.html#TrafficInjection.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.replay_event.TrafficInjection.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Parameters:</dt>
 <dd><ul class="first last simple">
 <li>dp_event: DataplaneEvent object encapsulating the packet contents and the
 access link.</li>
+<li>host_id: unique integer label identifying the host that generated the
+packet.</li>
 <li>label: a unique label for this event. Internal event labels begin with &#8216;i&#8217;
 and input event labels begin with &#8216;e&#8217;.</li>
 <li>time: the timestamp of when this event occured. Stored as a tuple:
@@ -1855,7 +1857,7 @@ debugging.</li>
 <dl class="attribute">
 <dt id="sts.replay_event.TrafficInjection.fingerprint">
 <tt class="descname">fingerprint</tt><a class="reference internal" href="_modules/sts/replay_event.html#TrafficInjection.fingerprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.replay_event.TrafficInjection.fingerprint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fingerprint tuple format: (class name, dp event)
+<dd><p>Fingerprint tuple format: (class name, dp event, host_id)
 The format of dp event is:
 {&#8220;interface&#8221;: HostInterface.to_json(), &#8220;packet&#8221;: base 64 encoded packet contents}
 See entities.py for the HostInterface json format.</p>
@@ -2586,7 +2588,7 @@ as a parameter</li>
 
 <dl class="method">
 <dt id="sts.topology.Topology.create_host">
-<tt class="descname">create_host</tt><big>(</big><em>ingress_switch_or_switches</em>, <em>mac_or_macs=None</em>, <em>ip_or_ips=None</em>, <em>get_switch_port=&lt;function get_switchs_host_port at 0x1cb17f0&gt;</em><big>)</big><a class="reference internal" href="_modules/sts/topology.html#Topology.create_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.topology.Topology.create_host" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_host</tt><big>(</big><em>ingress_switch_or_switches</em>, <em>mac_or_macs=None</em>, <em>ip_or_ips=None</em>, <em>get_switch_port=&lt;function get_switchs_host_port at 0x403f5f0&gt;</em><big>)</big><a class="reference internal" href="_modules/sts/topology.html#Topology.create_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.topology.Topology.create_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a host, register it in the topology, and wire it to the given switch(es)</p>
 </dd></dl>
 
@@ -2730,13 +2732,13 @@ hosts previously attached</p>
 
 <dl class="function">
 <dt id="sts.topology.create_host">
-<tt class="descclassname">sts.topology.</tt><tt class="descname">create_host</tt><big>(</big><em>ingress_switch_or_switches</em>, <em>mac_or_macs=None</em>, <em>ip_or_ips=None</em>, <em>get_switch_port=&lt;function get_switchs_host_port at 0x1cb17f0&gt;</em><big>)</big><a class="reference internal" href="_modules/sts/topology.html#create_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.topology.create_host" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">sts.topology.</tt><tt class="descname">create_host</tt><big>(</big><em>ingress_switch_or_switches</em>, <em>mac_or_macs=None</em>, <em>ip_or_ips=None</em>, <em>get_switch_port=&lt;function get_switchs_host_port at 0x403f5f0&gt;</em><big>)</big><a class="reference internal" href="_modules/sts/topology.html#create_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.topology.create_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Host, wired up to the given ingress switches</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="sts.topology.create_netns_host">
-<tt class="descclassname">sts.topology.</tt><tt class="descname">create_netns_host</tt><big>(</big><em>create_io_worker</em>, <em>ingress_switch</em>, <em>ip_addr_str=''</em>, <em>get_switch_port=&lt;function get_switchs_host_port at 0x1cb17f0&gt;</em>, <em>cmd='xterm'</em><big>)</big><a class="reference internal" href="_modules/sts/topology.html#create_netns_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.topology.create_netns_host" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">sts.topology.</tt><tt class="descname">create_netns_host</tt><big>(</big><em>create_io_worker</em>, <em>ingress_switch</em>, <em>ip_addr_str=''</em>, <em>get_switch_port=&lt;function get_switchs_host_port at 0x403f5f0&gt;</em>, <em>cmd='xterm'</em><big>)</big><a class="reference internal" href="_modules/sts/topology.html#create_netns_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.topology.create_netns_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a host with a process running in a separate network namespace.
 The netns can only communicate with a single interface (for now) because it must
 correspond to the physical interface in the network namespace guest.</p>
@@ -2763,17 +2765,17 @@ correspond to the physical interface in the network namespace guest.</p>
 <span id="traffic-generator-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">traffic_generator</span></tt> Module<a class="headerlink" href="#module-sts.traffic_generator" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="sts.traffic_generator.TrafficGenerator">
-<em class="property">class </em><tt class="descclassname">sts.traffic_generator.</tt><tt class="descname">TrafficGenerator</tt><big>(</big><em>random=&lt;random.Random object at 0xadc410&gt;</em><big>)</big><a class="reference internal" href="_modules/sts/traffic_generator.html#TrafficGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.traffic_generator.TrafficGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">sts.traffic_generator.</tt><tt class="descname">TrafficGenerator</tt><big>(</big><em>random=&lt;random.Random object at 0x52a6be0&gt;</em><big>)</big><a class="reference internal" href="_modules/sts/traffic_generator.html#TrafficGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.traffic_generator.TrafficGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Generate sensible randomly generated (openflow) events</p>
 <dl class="method">
 <dt id="sts.traffic_generator.TrafficGenerator.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>random=&lt;random.Random object at 0xadc410&gt;</em><big>)</big><a class="reference internal" href="_modules/sts/traffic_generator.html#TrafficGenerator.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.traffic_generator.TrafficGenerator.__init__" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">__init__</tt><big>(</big><em>random=&lt;random.Random object at 0x52a6be0&gt;</em><big>)</big><a class="reference internal" href="_modules/sts/traffic_generator.html#TrafficGenerator.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.traffic_generator.TrafficGenerator.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="sts.traffic_generator.TrafficGenerator.generate">
-<tt class="descname">generate</tt><big>(</big><em>packet_type</em>, <em>host</em>, <em>self_pkt=False</em><big>)</big><a class="reference internal" href="_modules/sts/traffic_generator.html#TrafficGenerator.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.traffic_generator.TrafficGenerator.generate" title="Permalink to this definition">¶</a></dt>
+<dt id="sts.traffic_generator.TrafficGenerator.generateAndInject">
+<tt class="descname">generateAndInject</tt><big>(</big><em>packet_type</em>, <em>host</em>, <em>self_pkt=False</em><big>)</big><a class="reference internal" href="_modules/sts/traffic_generator.html#TrafficGenerator.generateAndInject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.traffic_generator.TrafficGenerator.generateAndInject" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -2825,9 +2827,9 @@ correspond to the physical interface in the network namespace guest.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sts.gui.html">gui Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sts.gui.html#id1"><tt class="docutils literal"><span class="pre">gui</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sts.gui.html#entities-module"><tt class="docutils literal"><span class="pre">entities</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sts.gui.html#launcher-module"><tt class="docutils literal"><span class="pre">launcher</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sts.gui.html#view-module"><tt class="docutils literal"><span class="pre">view</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sts.gui.html#module-sts.gui.entities"><tt class="docutils literal"><span class="pre">entities</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sts.gui.html#module-sts.gui.launcher"><tt class="docutils literal"><span class="pre">launcher</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sts.gui.html#module-sts.gui.view"><tt class="docutils literal"><span class="pre">view</span></tt> Module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sts.headerspace.html">headerspace Package</a><ul>
