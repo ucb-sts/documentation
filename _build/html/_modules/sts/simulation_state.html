@@ -85,6 +85,7 @@
 <span class="kn">import</span> <span class="nn">sts.snapshot</span> <span class="kn">as</span> <span class="nn">snapshot</span>
 <span class="kn">from</span> <span class="nn">sts.util.socket_mux.base</span> <span class="kn">import</span> <span class="n">MultiplexedSelect</span>
 <span class="kn">from</span> <span class="nn">sts.util.socket_mux.sts_socket_multiplexer</span> <span class="kn">import</span> <span class="n">STSSocketDemultiplexer</span><span class="p">,</span> <span class="n">STSMockSocket</span>
+<span class="kn">from</span> <span class="nn">sts.util.rpc_forker</span> <span class="kn">import</span> <span class="n">LocalForker</span>
 <span class="kn">from</span> <span class="nn">pox.lib.util</span> <span class="kn">import</span> <span class="n">connect_socket_with_backoff</span>
 
 <span class="kn">import</span> <span class="nn">select</span>
@@ -272,6 +273,9 @@
     <span class="c"># kill controllers</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller_manager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">controller_manager</span><span class="o">.</span><span class="n">kill_all</span><span class="p">()</span>
+
+    <span class="c"># kill fork()ed procs</span>
+    <span class="n">LocalForker</span><span class="o">.</span><span class="n">kill_all</span><span class="p">()</span>
 
     <span class="c"># Garbage collect sockets</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>

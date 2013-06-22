@@ -112,7 +112,7 @@
     <span class="k">return</span> <span class="n">dead_controllers</span>
 </div>
   <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="InvariantChecker.check_loops"><a class="viewcode-back" href="../../sts.html#sts.invariant_checker.InvariantChecker.check_loops">[docs]</a>  <span class="k">def</span> <span class="nf">check_loops</span><span class="p">(</span><span class="n">simulation</span><span class="p">):</span>
+<div class="viewcode-block" id="InvariantChecker.python_check_loops"><a class="viewcode-back" href="../../sts.html#sts.invariant_checker.InvariantChecker.python_check_loops">[docs]</a>  <span class="k">def</span> <span class="nf">python_check_loops</span><span class="p">(</span><span class="n">simulation</span><span class="p">):</span>
     <span class="c"># Always check liveness if there is a single controllers</span>
     <span class="c"># Dynamic imports to allow this method to be serialized</span>
     <span class="kn">import</span> <span class="nn">sts.headerspace.topology_loader.topology_loader</span> <span class="kn">as</span> <span class="nn">hsa_topo</span>
@@ -215,7 +215,7 @@
     <span class="k">return</span> <span class="p">[</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">remaining_pairs</span><span class="p">)</span> <span class="p">]</span>
 </div>
   <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="InvariantChecker.check_blackholes"><a class="viewcode-back" href="../../sts.html#sts.invariant_checker.InvariantChecker.check_blackholes">[docs]</a>  <span class="k">def</span> <span class="nf">check_blackholes</span><span class="p">(</span><span class="n">simulation</span><span class="p">):</span>
+<div class="viewcode-block" id="InvariantChecker.python_check_blackholes"><a class="viewcode-back" href="../../sts.html#sts.invariant_checker.InvariantChecker.python_check_blackholes">[docs]</a>  <span class="k">def</span> <span class="nf">python_check_blackholes</span><span class="p">(</span><span class="n">simulation</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Do any switches:</span>
 <span class="sd">         - send packets into a down link?</span>
 <span class="sd">         - drop packets that are supposed to go out their in_port?</span>

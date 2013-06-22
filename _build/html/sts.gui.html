@@ -59,14 +59,452 @@
 <div class="section" id="id1">
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">gui</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-sts.gui"></span></div>
-<div class="section" id="entities-module">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">entities</span></tt> Module<a class="headerlink" href="#entities-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-sts.gui.entities">
+<span id="entities-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">entities</span></tt> Module<a class="headerlink" href="#module-sts.gui.entities" title="Permalink to this headline">¶</a></h2>
+<p>Host, switch and link GUI entities that belong to the QGraphicsScene in TopologyView</p>
+<dl class="class">
+<dt id="sts.gui.entities.GuiHost">
+<em class="property">class </em><tt class="descclassname">sts.gui.entities.</tt><tt class="descname">GuiHost</tt><big>(</big><em>graphics_scene</em>, <em>_id</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiHost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiHost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sts.gui.entities.GuiNode" title="sts.gui.entities.GuiNode"><tt class="xref py py-class docutils literal"><span class="pre">sts.gui.entities.GuiNode</span></tt></a></p>
+<p>Interactive Host</p>
+<dl class="method">
+<dt id="sts.gui.entities.GuiHost.mouseReleaseEvent">
+<tt class="descname">mouseReleaseEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiHost.mouseReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiHost.mouseReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiHost.paint">
+<tt class="descname">paint</tt><big>(</big><em>painter</em>, <em>option</em>, <em>widget</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiHost.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiHost.paint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sts.gui.entities.GuiLink">
+<em class="property">class </em><tt class="descclassname">sts.gui.entities.</tt><tt class="descname">GuiLink</tt><big>(</big><em>graphics_scene</em>, <em>source_node</em>, <em>dest_node</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiLink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiLink" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsItem</span></tt></p>
+<p>Interactive Link</p>
+<dl class="method">
+<dt id="sts.gui.entities.GuiLink.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>graphics_scene</em>, <em>source_node</em>, <em>dest_node</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiLink.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiLink.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiLink.adjust">
+<tt class="descname">adjust</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiLink.adjust"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiLink.adjust" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiLink.boundingRect">
+<tt class="descname">boundingRect</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiLink.boundingRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiLink.boundingRect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiLink.paint">
+<tt class="descname">paint</tt><big>(</big><em>painter</em>, <em>option</em>, <em>widget</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiLink.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiLink.paint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sts.gui.entities.GuiNode">
+<em class="property">class </em><tt class="descclassname">sts.gui.entities.</tt><tt class="descname">GuiNode</tt><big>(</big><em>graphics_scene</em>, <em>_id</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsItem</span></tt></p>
+<dl class="docutils">
+<dt>Abstract Interactive Node</dt>
+<dd>If switch, id = switch.dpid
+If host, id = host.hid</dd>
+</dl>
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>graphics_scene</em>, <em>_id</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.addLink">
+<tt class="descname">addLink</tt><big>(</big><em>link</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.addLink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.addLink" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.boundingRect">
+<tt class="descname">boundingRect</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.boundingRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.boundingRect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.hoverLeaveEvent">
+<tt class="descname">hoverLeaveEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.hoverLeaveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.hoverLeaveEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.itemChange">
+<tt class="descname">itemChange</tt><big>(</big><em>change</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.itemChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.itemChange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.links">
+<tt class="descname">links</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.links" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.mouseDoubleClickEvent">
+<tt class="descname">mouseDoubleClickEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.mouseDoubleClickEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.mouseDoubleClickEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.mousePressEvent">
+<tt class="descname">mousePressEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.mousePressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.mousePressEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.popupnode_detailsMenu">
+<tt class="descname">popupnode_detailsMenu</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.popupnode_detailsMenu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.popupnode_detailsMenu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiNode.shape">
+<tt class="descname">shape</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiNode.shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiNode.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sts.gui.entities.GuiSwitch">
+<em class="property">class </em><tt class="descclassname">sts.gui.entities.</tt><tt class="descname">GuiSwitch</tt><big>(</big><em>graphics_scene</em>, <em>_id</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiSwitch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiSwitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sts.gui.entities.GuiNode" title="sts.gui.entities.GuiNode"><tt class="xref py py-class docutils literal"><span class="pre">sts.gui.entities.GuiNode</span></tt></a></p>
+<p>Interactive Switch</p>
+<dl class="method">
+<dt id="sts.gui.entities.GuiSwitch.mouseReleaseEvent">
+<tt class="descname">mouseReleaseEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiSwitch.mouseReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiSwitch.mouseReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Popup menu contains:</dt>
+<dd>Add Link To &#8211;
+Remove Link To &#8211;
+Attach Host
+Remove Host &#8211;
+Remove Switch</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.entities.GuiSwitch.paint">
+<tt class="descname">paint</tt><big>(</big><em>painter</em>, <em>option</em>, <em>widget</em><big>)</big><a class="reference internal" href="_modules/sts/gui/entities.html#GuiSwitch.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.entities.GuiSwitch.paint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="launcher-module">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">launcher</span></tt> Module<a class="headerlink" href="#launcher-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-sts.gui.launcher">
+<span id="launcher-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">launcher</span></tt> Module<a class="headerlink" href="#module-sts.gui.launcher" title="Permalink to this headline">¶</a></h2>
+<p>This file creates the GUI application window in a separate thread</p>
+<dl class="class">
+<dt id="sts.gui.launcher.GuiWindow">
+<em class="property">class </em><tt class="descclassname">sts.gui.launcher.</tt><tt class="descname">GuiWindow</tt><big>(</big><em>sts_topology</em>, <em>syncPeriod=2.0</em>, <em>debugging=False</em><big>)</big><a class="reference internal" href="_modules/sts/gui/launcher.html#GuiWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.launcher.GuiWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QMainWindow</span></tt></p>
+<p>QMainWindow container for TopologyWidget</p>
+<dl class="method">
+<dt id="sts.gui.launcher.GuiWindow.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>sts_topology</em>, <em>syncPeriod=2.0</em>, <em>debugging=False</em><big>)</big><a class="reference internal" href="_modules/sts/gui/launcher.html#GuiWindow.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.launcher.GuiWindow.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.launcher.GuiWindow.center">
+<tt class="descname">center</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/launcher.html#GuiWindow.center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.launcher.GuiWindow.center" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sts.gui.launcher.TopologyGui">
+<em class="property">class </em><tt class="descclassname">sts.gui.launcher.</tt><tt class="descname">TopologyGui</tt><big>(</big><em>sts_topology</em>, <em>syncPeriod=2.0</em>, <em>debugging=False</em><big>)</big><a class="reference internal" href="_modules/sts/gui/launcher.html#TopologyGui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.launcher.TopologyGui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invoked directly by the STS Topology class to launch a new GUI instance</p>
+<dl class="method">
+<dt id="sts.gui.launcher.TopologyGui.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>sts_topology</em>, <em>syncPeriod=2.0</em>, <em>debugging=False</em><big>)</big><a class="reference internal" href="_modules/sts/gui/launcher.html#TopologyGui.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.launcher.TopologyGui.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.launcher.TopologyGui.launch">
+<tt class="descname">launch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/launcher.html#TopologyGui.launch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.launcher.TopologyGui.launch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sts.gui.launcher.TopologyWidget">
+<em class="property">class </em><tt class="descclassname">sts.gui.launcher.</tt><tt class="descname">TopologyWidget</tt><big>(</big><em>sts_topology</em>, <em>parent=None</em>, <em>syncPeriod=2.0</em>, <em>debugging=False</em><big>)</big><a class="reference internal" href="_modules/sts/gui/launcher.html#TopologyWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.launcher.TopologyWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QWidget</span></tt></p>
+<p>QWidget container for TopologyView</p>
+<dl class="method">
+<dt id="sts.gui.launcher.TopologyWidget.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>sts_topology</em>, <em>parent=None</em>, <em>syncPeriod=2.0</em>, <em>debugging=False</em><big>)</big><a class="reference internal" href="_modules/sts/gui/launcher.html#TopologyWidget.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.launcher.TopologyWidget.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="view-module">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">view</span></tt> Module<a class="headerlink" href="#view-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-sts.gui.view">
+<span id="view-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">view</span></tt> Module<a class="headerlink" href="#module-sts.gui.view" title="Permalink to this headline">¶</a></h2>
+<p>Graphical representation of STS topology switch, host and link entities</p>
+<dl class="class">
+<dt id="sts.gui.view.STSSyncer">
+<em class="property">class </em><tt class="descclassname">sts.gui.view.</tt><tt class="descname">STSSyncer</tt><big>(</big><em>sts_topology</em>, <em>topology_view</em>, <em>sync_period=2.0</em>, <em>debugging=True</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Container of Node and Link objects in GUI that periodically syncs with STS Topology</p>
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>sts_topology</em>, <em>topology_view</em>, <em>sync_period=2.0</em>, <em>debugging=True</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.add_access_link">
+<tt class="descname">add_access_link</tt><big>(</big><em>hid</em>, <em>dpid</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.add_access_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.add_access_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add and register an access link in GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.add_host">
+<tt class="descname">add_host</tt><big>(</big><em>hid</em>, <em>position=None</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.add_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.add_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add and register a host in GUI with the given hid and position</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.add_network_link">
+<tt class="descname">add_network_link</tt><big>(</big><em>from_dpid</em>, <em>to_dpid</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.add_network_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.add_network_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add and register a unidirectional network link in GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.add_switch">
+<tt class="descname">add_switch</tt><big>(</big><em>dpid</em>, <em>position=None</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.add_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.add_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add and register a switch in GUI with the given dpid and position</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.attach_host_to_switch">
+<tt class="descname">attach_host_to_switch</tt><big>(</big><em>dpid</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.attach_host_to_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.attach_host_to_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a host and attach it to the switch with the given dpid in both STS and GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.create_network_link">
+<tt class="descname">create_network_link</tt><big>(</big><em>from_dpid</em>, <em>to_dpid</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.create_network_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.create_network_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a unidirectional network link in both STS and GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.create_switch">
+<tt class="descname">create_switch</tt><big>(</big><em>dpid=None</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.create_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.create_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a switch with the given dpid in both STS and GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.debug">
+<tt class="descname">debug</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.deserialize_host">
+<tt class="descname">deserialize_host</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.deserialize_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.deserialize_host" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Format Example:</dt>
+<dd><dl class="first last docutils">
+<dt>{&#8220;ingress_switch_dpids&#8221;:[1,3],</dt>
+<dd>&#8220;position&#8221;:(-60.0,20.0)}</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.deserialize_network_link">
+<tt class="descname">deserialize_network_link</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.deserialize_network_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.deserialize_network_link" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Format Example:</dt>
+<dd><dl class="first last docutils">
+<dt>{&#8220;from_switch_dpid&#8221;:5,</dt>
+<dd>&#8220;to_switch_dpid&#8221;:3}</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.deserialize_switch">
+<tt class="descname">deserialize_switch</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.deserialize_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.deserialize_switch" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Format Example:</dt>
+<dd><dl class="first last docutils">
+<dt>{&#8220;dpid&#8221;:5,</dt>
+<dd>&#8220;numports&#8221;:3
+&#8220;position&#8221;:(-10.0,80.0)}</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sts.gui.view.STSSyncer.dpids">
+<tt class="descname">dpids</tt><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.dpids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.dpids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.get_sts_host">
+<tt class="descname">get_sts_host</tt><big>(</big><em>gui_host</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.get_sts_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.get_sts_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a host in GUI, return the corresponding host in STS by hid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.get_sts_switch">
+<tt class="descname">get_sts_switch</tt><big>(</big><em>gui_switch</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.get_sts_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.get_sts_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a switch in GUI, return the corresponding switch in STS by dpid</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sts.gui.view.STSSyncer.hids">
+<tt class="descname">hids</tt><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.hids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.hids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="sts.gui.view.STSSyncer.hosts">
+<tt class="descname">hosts</tt><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.hosts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.hosts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="sts.gui.view.STSSyncer.links">
+<tt class="descname">links</tt><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.links" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.load_state">
+<tt class="descname">load_state</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.load_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.load_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all JSON serialized entities of both the STS and GUI topologies from a file
+Each line is in the format (type, serialized_entity):</p>
+<blockquote>
+<div>&#8220;s&#8221; = switch
+&#8220;h&#8221; = host
+&#8220;l&#8221; = network link</div></blockquote>
+<p>Switches must be loaded first</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.remove_host">
+<tt class="descname">remove_host</tt><big>(</big><em>hid</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.remove_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.remove_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a host and all associated access links in both STS and GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.remove_network_link">
+<tt class="descname">remove_network_link</tt><big>(</big><em>from_dpid</em>, <em>to_dpid</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.remove_network_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.remove_network_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a unidirectional network link in both STS and GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.remove_switch">
+<tt class="descname">remove_switch</tt><big>(</big><em>dpid</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.remove_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.remove_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a switch in both STS and GUI, along with all associated links and any
+dangling hosts previously attached</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset GUI topology</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.save_state">
+<tt class="descname">save_state</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.save_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save all JSON serialized entities of both the STS and GUI topologies to a file
+Each line is in the format (&lt;entity type&gt;, &lt;serialized form&gt;):</p>
+<blockquote>
+<div>&#8220;s&#8221; = switch
+&#8220;h&#8221; = host
+&#8220;l&#8221; = network link</div></blockquote>
+<p>Access links need not be saved, because there is a one to one correspondence
+between hosts and access links</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.serialize_host">
+<tt class="descname">serialize_host</tt><big>(</big><em>gui_host</em>, <em>sts_host</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.serialize_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.serialize_host" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Format Example:</dt>
+<dd><dl class="first last docutils">
+<dt>{&#8220;ingress_switch_dpids&#8221;:[1,3],</dt>
+<dd>&#8220;position&#8221;:(-60.0,20.0)}</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.serialize_network_link">
+<tt class="descname">serialize_network_link</tt><big>(</big><em>sts_link</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.serialize_network_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.serialize_network_link" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Format Example:</dt>
+<dd><dl class="first last docutils">
+<dt>{&#8220;from_switch_dpid&#8221;:5,</dt>
+<dd>&#8220;to_switch_dpid&#8221;:3}</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.serialize_switch">
+<tt class="descname">serialize_switch</tt><big>(</big><em>gui_switch</em>, <em>sts_switch</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.serialize_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.serialize_switch" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Format Example:</dt>
+<dd><dl class="first last docutils">
+<dt>{&#8220;dpid&#8221;:5,</dt>
+<dd>&#8220;numports&#8221;:3
+&#8220;position&#8221;:(-10.0,80.0)}</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sts.gui.view.STSSyncer.switches">
+<tt class="descname">switches</tt><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.switches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.switches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.sync_with_sts">
+<tt class="descname">sync_with_sts</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.sync_with_sts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.sync_with_sts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resync all network elements if STS and GUI are persistently desynchronized</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.synced_with_sts">
+<tt class="descname">synced_with_sts</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.synced_with_sts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.synced_with_sts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if GUI and STS share the same map of nodes and links</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.STSSyncer.toggle_debug_messages">
+<tt class="descname">toggle_debug_messages</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#STSSyncer.toggle_debug_messages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.STSSyncer.toggle_debug_messages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sts.gui.view.TopologyView">
+<em class="property">class </em><tt class="descclassname">sts.gui.view.</tt><tt class="descname">TopologyView</tt><big>(</big><em>sts_topology</em>, <em>parent=None</em>, <em>sync_period=2.0</em>, <em>debugging=False</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#TopologyView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.TopologyView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsView</span></tt></p>
+<p>QGraphicsView that provides a graphical representation of STS topology</p>
+<dl class="method">
+<dt id="sts.gui.view.TopologyView.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>sts_topology</em>, <em>parent=None</em>, <em>sync_period=2.0</em>, <em>debugging=False</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#TopologyView.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.TopologyView.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sts.gui.view.TopologyView.mouseReleaseEvent">
+<tt class="descname">mouseReleaseEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/sts/gui/view.html#TopologyView.mouseReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sts.gui.view.TopologyView.mouseReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show context menu when right-clicking on empty space on the scene.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
@@ -80,9 +518,9 @@
   <ul>
 <li><a class="reference internal" href="#">gui Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">gui</span></tt> Package</a></li>
-<li><a class="reference internal" href="#entities-module"><tt class="docutils literal"><span class="pre">entities</span></tt> Module</a></li>
-<li><a class="reference internal" href="#launcher-module"><tt class="docutils literal"><span class="pre">launcher</span></tt> Module</a></li>
-<li><a class="reference internal" href="#view-module"><tt class="docutils literal"><span class="pre">view</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-sts.gui.entities"><tt class="docutils literal"><span class="pre">entities</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-sts.gui.launcher"><tt class="docutils literal"><span class="pre">launcher</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-sts.gui.view"><tt class="docutils literal"><span class="pre">view</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

@@ -212,6 +212,9 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">InternalEvent</span><span class="p">):</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_internal</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">update_event_time</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="c"># Set event.time to now for the replay log</span>
+    <span class="n">event</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">SyncTime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_log_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="EventScheduler.inject_input"><a class="viewcode-back" href="../../../sts.control_flow.html#sts.control_flow.event_scheduler.EventScheduler.inject_input">[docs]</a>  <span class="k">def</span> <span class="nf">inject_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay_input_events</span><span class="p">:</span>

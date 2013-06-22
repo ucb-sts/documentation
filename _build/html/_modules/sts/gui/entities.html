@@ -1,0 +1,385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sts.gui.entities &mdash; STS 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="STS 0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">STS 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for sts.gui.entities</h1><div class="highlight"><pre>
+<span class="c"># Copyright 2011-2013 Colin Scott</span>
+<span class="c"># Copyright 2012-2013 Andrew Or</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at:</span>
+<span class="c">#</span>
+<span class="c">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Host, switch and link GUI entities that belong to the QGraphicsScene in TopologyView</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+
+<div class="viewcode-block" id="GuiNode"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode">[docs]</a><span class="k">class</span> <span class="nc">GuiNode</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Abstract Interactive Node</span>
+<span class="sd">    If switch, id = switch.dpid</span>
+<span class="sd">    If host, id = host.hid</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="GuiNode.__init__"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graphics_scene</span><span class="p">,</span> <span class="n">_id</span><span class="p">):</span>
+    <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span> <span class="o">=</span> <span class="n">graphics_scene</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">_id</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">linkList</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">newPos</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemSendsGeometryChanges</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setZValue</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setAcceptHoverEvents</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiNode.addLink"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.addLink">[docs]</a>  <span class="k">def</span> <span class="nf">addLink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">linkList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">adjust</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="GuiNode.links"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.links">[docs]</a>  <span class="k">def</span> <span class="nf">links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linkList</span>
+</div>
+<div class="viewcode-block" id="GuiNode.boundingRect"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.boundingRect">[docs]</a>  <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">adjust</span> <span class="o">=</span> <span class="mf">2.0</span>
+    <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QRectF</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span> <span class="o">-</span> <span class="n">adjust</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span> <span class="o">-</span> <span class="n">adjust</span><span class="p">,</span> <span class="mi">23</span> <span class="o">+</span> <span class="n">adjust</span><span class="p">,</span> <span class="mi">23</span> <span class="o">+</span> <span class="n">adjust</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiNode.shape"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.shape">[docs]</a>  <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPainterPath</span><span class="p">()</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">addEllipse</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span>
+</div>
+<div class="viewcode-block" id="GuiNode.itemChange"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.itemChange">[docs]</a>  <span class="k">def</span> <span class="nf">itemChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">change</span> <span class="o">==</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemPositionChange</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">linkList</span><span class="p">:</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">adjust</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">itemChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiNode.mousePressEvent"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.mousePressEvent">[docs]</a>  <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">still_hover</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiNode.mouseDoubleClickEvent"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.mouseDoubleClickEvent">[docs]</a>  <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</div>
+  <span class="nd">@QtCore.pyqtSlot</span><span class="p">()</span>
+<div class="viewcode-block" id="GuiNode.popupnode_detailsMenu"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.popupnode_detailsMenu">[docs]</a>  <span class="k">def</span> <span class="nf">popupnode_detailsMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">still_hover</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">node_details</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hover_pos</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiNode.hoverLeaveEvent"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiNode.hoverLeaveEvent">[docs]</a>  <span class="k">def</span> <span class="nf">hoverLeaveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">still_hover</span> <span class="o">=</span> <span class="bp">False</span>
+</div></div>
+<div class="viewcode-block" id="GuiHost"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiHost">[docs]</a><span class="k">class</span> <span class="nc">GuiHost</span><span class="p">(</span><span class="n">GuiNode</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Interactive Host</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="GuiHost.paint"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiHost.paint">[docs]</a>  <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">NoPen</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">darkGray</span><span class="p">)</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">25</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawRect</span><span class="p">(</span><span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+    <span class="n">gradient</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QRadialGradient</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">yellow</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">state</span> <span class="o">&amp;</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStyle</span><span class="o">.</span><span class="n">State_Sunken</span><span class="p">:</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setCenter</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setFocalPoint</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setColorAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setColorAt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setColorAt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">85</span><span class="p">))</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setColorAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">25</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="n">gradient</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPen</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawRect</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+    <span class="c"># Draw hid</span>
+    <span class="n">text_rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">font</span> <span class="o">=</span> <span class="n">painter</span><span class="o">.</span><span class="n">font</span><span class="p">()</span>
+    <span class="n">font</span><span class="o">.</span><span class="n">setBold</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">gray</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">text_rect</span><span class="o">.</span><span class="n">translated</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="n">message</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">gray</span><span class="p">)</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">130</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">text_rect</span><span class="o">.</span><span class="n">translated</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">message</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiHost.mouseReleaseEvent"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiHost.mouseReleaseEvent">[docs]</a>  <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="GuiSwitch"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiSwitch">[docs]</a><span class="k">class</span> <span class="nc">GuiSwitch</span><span class="p">(</span><span class="n">GuiNode</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Interactive Switch</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="GuiSwitch.paint"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiSwitch.paint">[docs]</a>  <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">NoPen</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">darkGray</span><span class="p">)</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">25</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawEllipse</span><span class="p">(</span><span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="n">gradient</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QRadialGradient</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">green</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">state</span> <span class="o">&amp;</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStyle</span><span class="o">.</span><span class="n">State_Sunken</span><span class="p">:</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setCenter</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setFocalPoint</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setColorAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setColorAt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setColorAt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">85</span><span class="p">))</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">setColorAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">25</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="n">gradient</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPen</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawEllipse</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="c"># Draw dpid</span>
+    <span class="n">text_rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">font</span> <span class="o">=</span> <span class="n">painter</span><span class="o">.</span><span class="n">font</span><span class="p">()</span>
+    <span class="n">font</span><span class="o">.</span><span class="n">setBold</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">gray</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">text_rect</span><span class="o">.</span><span class="n">translated</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="n">message</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">gray</span><span class="p">)</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">130</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">text_rect</span><span class="o">.</span><span class="n">translated</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">message</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiSwitch.mouseReleaseEvent"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiSwitch.mouseReleaseEvent">[docs]</a>  <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Popup menu contains:</span>
+<span class="sd">      Add Link To --</span>
+<span class="sd">      Remove Link To --</span>
+<span class="sd">      Attach Host</span>
+<span class="sd">      Remove Host --</span>
+<span class="sd">      Remove Switch</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RightButton</span><span class="p">:</span>
+      <span class="n">popup</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMenu</span><span class="p">()</span>
+
+      <span class="c"># Hack against python scoping</span>
+      <span class="k">def</span> <span class="nf">create_network_link_lambda</span><span class="p">(</span><span class="n">from_dpid</span><span class="p">,</span> <span class="n">to_dpid</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">create_network_link</span><span class="p">(</span><span class="n">from_dpid</span><span class="p">,</span> <span class="n">to_dpid</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">remove_network_link_lambda</span><span class="p">(</span><span class="n">from_dpid</span><span class="p">,</span> <span class="n">to_dpid</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">remove_network_link</span><span class="p">(</span><span class="n">from_dpid</span><span class="p">,</span> <span class="n">to_dpid</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">attach_host_lambda</span><span class="p">(</span><span class="n">dpid</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">attach_host_to_switch</span><span class="p">(</span><span class="n">dpid</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">remove_host_lambda</span><span class="p">(</span><span class="n">hid</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">remove_host</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">remove_switch_lambda</span><span class="p">(</span><span class="n">dpid</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">remove_switch</span><span class="p">(</span><span class="n">dpid</span><span class="p">)</span>
+
+      <span class="n">addLinkMenu</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMenu</span><span class="p">(</span><span class="s">&quot;Add Link To&quot;</span><span class="p">)</span>
+      <span class="n">removeLinkMenu</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMenu</span><span class="p">(</span><span class="s">&quot;Remove Link To&quot;</span><span class="p">)</span>
+      <span class="n">removeHostMenu</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMenu</span><span class="p">(</span><span class="s">&quot;Remove Host&quot;</span><span class="p">)</span>
+
+      <span class="c"># Find network links to potentially create</span>
+      <span class="n">dpids_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">dpid2switch</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span><span class="o">.</span><span class="n">syncer</span><span class="o">.</span><span class="n">dpid2switch</span><span class="p">[</span><span class="n">dpid</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">switch</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
+          <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">linkList</span><span class="p">:</span>
+          <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">dest</span> <span class="ow">is</span> <span class="n">switch</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">dpids_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">switch</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dpids_to_add</span><span class="p">):</span>
+        <span class="n">addLinkMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dpid</span><span class="p">),</span> <span class="n">create_network_link_lambda</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">dpid</span><span class="p">))</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dpids_to_add</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">addLinkMenu</span><span class="p">)</span>
+      
+      <span class="c"># Find network links to potentially remove</span>
+      <span class="n">dpids_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">linkList</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="n">GuiSwitch</span><span class="p">)</span> <span class="ow">and</span> <span class="n">link</span><span class="o">.</span><span class="n">dest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+          <span class="n">dpids_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">dest</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">dpid</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dpids_to_remove</span><span class="p">):</span>
+        <span class="n">removeLinkMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dpid</span><span class="p">),</span> <span class="n">remove_network_link_lambda</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">dpid</span><span class="p">))</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dpids_to_remove</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">removeLinkMenu</span><span class="p">)</span>
+      
+      <span class="c"># Attach a host to the given switch</span>
+      <span class="n">popup</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Attach Host&quot;</span><span class="p">,</span> <span class="n">attach_host_lambda</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+      
+      <span class="c"># Find hosts to potentially remove</span>
+      <span class="n">hids_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">linkList</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">GuiHost</span><span class="p">)</span> <span class="ow">and</span> <span class="n">link</span><span class="o">.</span><span class="n">dest</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
+          <span class="n">hids_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">hids_to_remove</span><span class="p">:</span>
+        <span class="n">removeHostMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">hid</span><span class="p">),</span> <span class="n">remove_host_lambda</span><span class="p">(</span><span class="n">hid</span><span class="p">))</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hids_to_remove</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">removeHostMenu</span><span class="p">)</span>
+      
+      <span class="c"># Remove self  </span>
+      <span class="n">popup</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Remove Switch&quot;</span><span class="p">,</span> <span class="n">remove_switch_lambda</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+          
+      <span class="n">popup</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">lastScreenPos</span><span class="p">())</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="GuiLink"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiLink">[docs]</a><span class="k">class</span> <span class="nc">GuiLink</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Interactive Link</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="GuiLink.__init__"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiLink.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graphics_scene</span><span class="p">,</span> <span class="n">source_node</span><span class="p">,</span> <span class="n">dest_node</span><span class="p">):</span>
+    <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">graphics_scene</span> <span class="o">=</span> <span class="n">graphics_scene</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">arrow_size</span> <span class="o">=</span> <span class="mf">10.0</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">source_point</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dest_point</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setAcceptedMouseButtons</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RightButton</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">setAcceptHoverEvents</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source_node</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dest</span> <span class="o">=</span> <span class="n">dest_node</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">draw_arrow</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">addLink</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="o">.</span><span class="n">addLink</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">adjust</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="GuiLink.adjust"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiLink.adjust">[docs]</a>  <span class="k">def</span> <span class="nf">adjust</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QLineF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapFromItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> \
+                         <span class="bp">self</span><span class="o">.</span><span class="n">mapFromItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">length</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">linkOffset</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">((</span><span class="n">line</span><span class="o">.</span><span class="n">dx</span><span class="p">()</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">/</span> <span class="n">length</span><span class="p">,</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">dy</span><span class="p">()</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">/</span> <span class="n">length</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">prepareGeometryChange</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">source_point</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">p1</span><span class="p">()</span> <span class="o">+</span> <span class="n">linkOffset</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dest_point</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">p2</span><span class="p">()</span> <span class="o">-</span> <span class="n">linkOffset</span>
+</div>
+<div class="viewcode-block" id="GuiLink.boundingRect"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiLink.boundingRect">[docs]</a>  <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QRectF</span><span class="p">()</span>
+    <span class="n">penWidth</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="p">(</span><span class="n">penWidth</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow_size</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">rect</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QRectF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_point</span><span class="p">,</span>
+               <span class="n">QtCore</span><span class="o">.</span><span class="n">QSizeF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dest_point</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_point</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">dest_point</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_point</span><span class="o">.</span><span class="n">y</span><span class="p">()))</span><span class="o">.</span><span class="n">normalized</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">rect</span><span class="o">.</span><span class="n">adjusted</span><span class="p">(</span><span class="o">-</span><span class="n">extra</span><span class="p">,</span> <span class="o">-</span><span class="n">extra</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">extra</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiLink.paint"><a class="viewcode-back" href="../../../sts.gui.html#sts.gui.entities.GuiLink.paint">[docs]</a>  <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QLineF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest_point</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">length</span><span class="p">()</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">gray</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">SolidLine</span>
+
+    <span class="c"># Highlight when clicked/held</span>
+    <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">state</span> <span class="o">&amp;</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStyle</span><span class="o">.</span><span class="n">State_Sunken</span><span class="p">:</span>
+      <span class="n">color</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">color</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span><span class="o">.</span><span class="n">light</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPen</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">pattern</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RoundCap</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RoundJoin</span><span class="p">))</span>
+    <span class="n">painter</span><span class="o">.</span><span class="n">drawLine</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="c"># Draw the arrows if there&#39;s enough room.</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">dx</span><span class="p">()</span> <span class="o">/</span> <span class="n">line</span><span class="o">.</span><span class="n">length</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">dy</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">angle</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">angle</span>
+    <span class="n">dest_arrow_p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest_point</span> <span class="o">+</span> \
+      <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow_size</span><span class="p">,</span>
+      <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow_size</span><span class="p">)</span>
+    <span class="n">dest_arrow_p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest_point</span> <span class="o">+</span> \
+      <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow_size</span><span class="p">,</span>
+      <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow_size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_arrow</span><span class="p">:</span>
+      <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+      <span class="n">painter</span><span class="o">.</span><span class="n">drawPolygon</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPolygonF</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">p2</span><span class="p">(),</span> \
+        <span class="n">dest_arrow_p1</span><span class="p">,</span> <span class="n">dest_arrow_p2</span><span class="p">]))</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">STS 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Colin Scott.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

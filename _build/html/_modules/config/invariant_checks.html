@@ -58,27 +58,35 @@
   <span class="k">return</span> <span class="p">[]</span>
 </div>
 <div class="viewcode-block" id="check_for_loops_or_connectivity"><a class="viewcode-back" href="../../config.html#config.invariant_checks.check_for_loops_or_connectivity">[docs]</a><span class="k">def</span> <span class="nf">check_for_loops_or_connectivity</span><span class="p">(</span><span class="n">simulation</span><span class="p">):</span>
-  <span class="n">result</span> <span class="o">=</span> <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">check_loops</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
+  <span class="n">result</span> <span class="o">=</span> <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">python_check_loops</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">result</span>
   <span class="k">return</span> <span class="n">bail_on_connectivity</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="check_for_loops_blackholes_or_connectivity"><a class="viewcode-back" href="../../config.html#config.invariant_checks.check_for_loops_blackholes_or_connectivity">[docs]</a><span class="k">def</span> <span class="nf">check_for_loops_blackholes_or_connectivity</span><span class="p">(</span><span class="n">simulation</span><span class="p">):</span>
-  <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="p">[</span><span class="n">InvariantChecker</span><span class="o">.</span><span class="n">check_loops</span><span class="p">,</span> <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">check_blackholes</span><span class="p">]:</span>
+  <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="p">[</span><span class="n">InvariantChecker</span><span class="o">.</span><span class="n">python_check_loops</span><span class="p">,</span> <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">python_check_blackholes</span><span class="p">]:</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">check</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">result</span>
   <span class="k">return</span> <span class="n">bail_on_connectivity</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="check_for_loops_blackholes"><a class="viewcode-back" href="../../config.html#config.invariant_checks.check_for_loops_blackholes">[docs]</a><span class="k">def</span> <span class="nf">check_for_loops_blackholes</span><span class="p">(</span><span class="n">simulation</span><span class="p">):</span>
+  <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="p">[</span><span class="n">InvariantChecker</span><span class="o">.</span><span class="n">python_check_loops</span><span class="p">,</span> <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">python_check_blackholes</span><span class="p">]:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">check</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">result</span>
+  <span class="k">return</span> <span class="p">[]</span>
 
 <span class="c"># Note: make sure to add new custom invariant checks to this dictionary!</span></div>
 <span class="n">name_to_invariant_check</span> <span class="o">=</span> <span class="p">{</span>
   <span class="s">&quot;check_for_loops_or_connectivity&quot;</span> <span class="p">:</span> <span class="n">check_for_loops_or_connectivity</span><span class="p">,</span>
   <span class="s">&quot;check_for_loops_blackholes_or_connectivity&quot;</span> <span class="p">:</span> <span class="n">check_for_loops_blackholes_or_connectivity</span><span class="p">,</span>
+  <span class="s">&quot;check_for_loops_blackholes&quot;</span> <span class="p">:</span> <span class="n">check_for_loops_blackholes</span><span class="p">,</span>
   <span class="s">&quot;InvariantChecker.check_liveness&quot;</span> <span class="p">:</span>  <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">check_liveness</span><span class="p">,</span>
-  <span class="s">&quot;InvariantChecker.check_loops&quot;</span> <span class="p">:</span>  <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">check_loops</span><span class="p">,</span>
+  <span class="s">&quot;InvariantChecker.check_loops&quot;</span> <span class="p">:</span>  <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">python_check_loops</span><span class="p">,</span>
   <span class="s">&quot;InvariantChecker.python_check_connectivity&quot;</span> <span class="p">:</span>  <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">python_check_connectivity</span><span class="p">,</span>
   <span class="s">&quot;InvariantChecker.check_connectivity&quot;</span> <span class="p">:</span>  <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">check_connectivity</span><span class="p">,</span>
-  <span class="s">&quot;InvariantChecker.check_blackholes&quot;</span> <span class="p">:</span>  <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">check_blackholes</span><span class="p">,</span>
+  <span class="s">&quot;InvariantChecker.check_blackholes&quot;</span> <span class="p">:</span>  <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">python_check_blackholes</span><span class="p">,</span>
   <span class="s">&quot;InvariantChecker.check_correspondence&quot;</span> <span class="p">:</span>  <span class="n">InvariantChecker</span><span class="o">.</span><span class="n">check_correspondence</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
