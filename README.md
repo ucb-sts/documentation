@@ -9,11 +9,10 @@ To update pydocs for existing code just run `make html`.
 You will probably need to tweak line 19 and line 20 of conf.py, since they are
 currently hardcoded to my path to STS.
 
-The results are generated in a _build/html directory. To host the generated
-HTML on github, switch over to the gh-pages branch, and copy over the
-generated HTML from the master branch. Pushing to the gh-pages branch will
-automatically cause the new content to show up on
-http://ucb-sts.github.io/documentation/ 
+The results are generated in a _build/html directory.
 
-TODO(cs): this is awkward, as currently this requires us to copy the repository so that we can
-access both branches at once.
+To host the generated  HTML on github, run:
+$ ./publish_to_github.sh.
+
+This will automatically cause the new content to show up on
+http://ucb-sts.github.io/documentation/ 
